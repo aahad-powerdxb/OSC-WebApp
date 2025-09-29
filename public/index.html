@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Linking the new CSS files -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <script src="js/main.js" defer type="module"></script>
+  <title>Expo Video Controller</title>
+</head>
+<body>
+  <div id="tapTarget" class="tap-target"></div>
+
+  <!-- Password Wall -->
+  <div id="passwordWallContainer" class="page-container hidden">
+    <div class="card">
+      <h2>Enter Password</h2>
+
+      <form id="passwordForm" onsubmit="return false;">
+        <div class="form-row mt-10">
+          <label for="passwordInput">Password</label>
+          <input id="passwordInput" type="password" required />
+        </div>
+
+        <div class="form-row justify-center mt-15">
+          <button type="button" onclick="submitPassword()">Unlock</button>
+        </div>
+      </form>
+
+      <div id="passwordStatus" class="status error"></div>
+
+      <hr class="divider">
+
+      <div class="form-row justify-center">
+        <button onclick="showStartScreen()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- OSC Config Form -->
+  <div id="configFormContainer" class="page-container hidden">
+    <div class="card">
+      <h2>OSC Target Configuration</h2>
+
+      <form id="targetForm" onsubmit="return false;">
+        <div class="form-row">
+          <label for="hostInput">OSC Host</label>
+          <input id="hostInput" type="text" placeholder="127.0.0.1" />
+        </div>
+
+        <div class="form-row">
+          <label for="portInput">OSC Port</label>
+          <input id="portInput" type="number" placeholder="57120" min="1" max="65535" />
+        </div>
+
+        <div class="form-row">
+          <button id="setTargetBtn" type="button" onclick="setTarget()">Set Target</button>
+          <button id="setTargetTestBtn" type="button" onclick="setTargetAndTest()">Set + Test</button>
+        </div>
+      </form>
+
+      <div id="configStatus" class="status"></div>
+
+      <hr class="divider">
+
+      <div class="form-row" style="gap:12px;">
+        <button onclick="showStartScreen()">Back to Controller</button>
+        <button class="reset-btn" onclick="sendHolding()">Reset Video Playback</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Container: Contains the multi-step leadForm -->
+  <div id="mainContent" class="page-container controller-page">
+    <div class="main-card lead-card">
+      <!-- Title and Instructions change dynamically based on step -->
+      <h2 id="controllerTitle">Welcome to the Controller</h2>
+      <p style="margin-bottom: 20px; font-size: 14px; color: #666;" id="leadInstructions">Please enter your details to proceed to the video controls.</p>
+
+      <form id="leadForm" onsubmit="return false;">
+        <!-- STEP 1: Name and Email (Visible initially) -->
+        <div id="formStep1" class="form-step form-step-1">
+          <div class="form-row mt-10">
+            <label for="nameInput">Name</label>
+            <input id="nameInput" type="text"/>
+          </div>
+          <div class="form-row mt-10">
+            <label for="emailInput">Email</label>
+            <input id="emailInput" type="email"/>
+          </div>
+          <div class="form-row justify-center mt-15">
+            <button type="button" class="primary-btn" onclick="submitLeadForm()">Next</button>
+          </div>
+          <div id="leadStatus" class="status error hidden"></div>
+        </div>
+
+        <!-- STEP 2: Video Controls (Initially hidden) -->
+        <div id="formStep2" class="form-step form-step-2 hidden">
+          <!-- The Step 2 title is within the step container to be hidden/shown correctly -->
+          <h2 style="margin-top: 0;">Select Video</h2>
+
+          <div class="buttons-row">
+            <button onclick="send(1)" data-video-id="1">Play 1</button>
+            <button onclick="send(2)" data-video-id="2">Play 2</button>
+            <button onclick="send(3)" data-video-id="3">Play 3</button>
+            <button onclick="send(4)" data-video-id="4">Play 4</button>
+          </div>
+
+          <hr class="divider">
+
+          <div id="status" class="status">Not connected</div>
+        </div>
+        
+        <!-- STEP 3: Thank You Screen (Initially hidden) -->
+        <div id="formStep3" class="form-step form-step-3 hidden" style="text-align: center; padding: 40px 0;">
+            <h2 style="color: #4CAF50;">Thank You!</h2>
+            <p>Your session is complete. The application will now reset.</p>
+        </div>
+        
+        <!-- Hidden Submit Button -->
+        <button type="submit" id="hiddenSubmitBtn" style="display: none;" aria-hidden="true">Submit Lead Form</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

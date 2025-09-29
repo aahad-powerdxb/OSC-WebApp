@@ -1,0 +1,24 @@
+{
+  "name": "osc-webapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "start:dev:win": "cross-env OSC_HOST=127.0.0.1 OSC_PORT=57120 npm run start",
+    "start:dev:nix": "OSC_HOST=127.0.0.1 OSC_PORT=57120 npm run start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "node-osc": "^11.0.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "cross-env": "^10.0.0"
+  }
+}

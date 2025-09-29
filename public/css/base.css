@@ -1,0 +1,38 @@
+/* Imports for variables */
+@import url('./vars.css');
+
+/* Page layout and font */
+body{
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  margin:0;
+  background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+  position:relative;
+}
+
+/* Common container used by main, config and password areas */
+.page-container,
+.controller-page {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+}
+
+/* Title inside cards */
+h2 {
+  font-size:1.5em;
+  color:#1a202c;
+  margin-bottom:20px;
+  user-select: none;
+}
+
+/* Utility classes (replace inline styles) */
+.hidden { display:none !important; }
+.mt-10 { margin-top:10px; }
+.mt-15 { margin-top:15px; }
+.justify-center { justify-content:center; }

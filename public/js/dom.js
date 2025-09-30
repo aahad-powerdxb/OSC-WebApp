@@ -71,8 +71,8 @@ export function showStartScreen(onShow) {
     if (formStep1El) formStep1El.classList.remove('hidden');
     
     // // Clear form fields to prevent showing old data
-    // if (nameInputEl) nameInputEl.value = '';
-    // if (emailInputEl) emailInputEl.value = '';
+    if (nameInputEl) nameInputEl.value = '';
+    if (emailInputEl) emailInputEl.value = '';
 
     if (controllerTitleEl) controllerTitleEl.textContent = 'Welcome to the Controller';
     if (leadInstructionsEl) leadInstructionsEl.textContent = 'Please enter your details to proceed to the video controls.';

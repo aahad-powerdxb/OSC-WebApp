@@ -2,7 +2,7 @@ import * as DOM from './dom.js';
 import * as Net from './networking.js';
 import * as State from './appState.js';
 import { getVideoButton, enableAllVideoButtons } from './helper/domHelpers.js';
-import { initializeButtonStatus, resetInactivityTimer, checkAllVideosSentAndReset, clearInactivityTimer, startInactivityTimer, handleVideoCommandError } from './helper/sessionLogic.js';
+import { initializeButtonStatus, resetInactivityTimer, setVideoDurationForId, checkAllVideosSentAndReset, clearInactivityTimer, startInactivityTimer, handleVideoCommandError } from './helper/sessionLogic.js';
 import { handlePasswordResult, submitPassword, setTarget, setTargetAndTest } from './helper/authAndConfig.js';
 import { setupEventListeners } from './helper/eventHandlers.js';
 
@@ -31,7 +31,7 @@ function handleServerMessage(data) {
 
         case 'sent':
             // Watch for /@3/20 ["wtm", N] messages and update main UI state
-            if (data.address === '/@3/20' && Array.isArray(data.args) && data.args.length >= 2 && data.args[0] === 'wtm') {
+            if (data.address === '/@3/20' && Array.isArray(data.args) && data.args.length >= 2 && data.args[0] === 'Video') {
                 const videoNum = parseInt(data.args[1], 10);
                 if (Number.isInteger(videoNum) && videoNum >= HOLDING_VIDEO_ID) { 
                     State.setCurrentVideoId(videoNum);
@@ -84,6 +84,10 @@ export function send(n) {
     
     // Update local state for error recovery and send command
     State.setCurrentVideoId(n);
+
+    // update VIDEO_DURATION_MS from the pressed button's "duration" attr
+    setVideoDurationForId(n);
+
     Net.sendVideoCommand(n);
     resetInactivityTimer(); // Reset timer on interaction
 }

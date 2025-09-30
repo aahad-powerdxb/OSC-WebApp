@@ -4,11 +4,7 @@ import * as Net from '../networking.js';
 import * as State from '../appState.js';
 import { getVideoButton } from './domHelpers.js';
 
-// NOTE: Do not destructure INACTIVITY_TIMEOUT_MS from State because it is mutated.
-// Only destructure the truly-constant values that won't be reassigned here.
-const { HOLDING_VIDEO_ID, VIDEO_DURATION_MS, LEFTOVER_TIMEOUT_MS } = State;
-
-let INACTIVITY_TIMEOUT_MS = LEFTOVER_TIMEOUT_MS; // Default value, will be computed dynamically
+const { HOLDING_VIDEO_ID, LEFTOVER_TIMEOUT_MS } = State;
 
 /**
  * Dynamically creates the initial buttonStatus object based on the currently available buttons' 'value' attribute.
@@ -91,16 +87,23 @@ export function transitionToStep3AndReset() {
  * - If NO buttons pressed: LEFTOVER_TIMEOUT_MS
  * - If ANY button pressed: VIDEO_DURATION_MS + LEFTOVER_TIMEOUT_MS
  *
- * This function updates State.INACTIVITY_TIMEOUT_MS and returns the computed value (ms).
+ * This function computes the Timer based on the values of State.VIDEO_DURATION_MS & LEFTOVER_TIMEOUT_MS and returns the computed value (ms).
  */
 function computeInactivityTimeout() {
     const status = State.buttonStatus || {};
     const anyPressed = Object.values(status).some(v => v === true);
 
-    const timeoutMs = anyPressed ? (VIDEO_DURATION_MS + LEFTOVER_TIMEOUT_MS) : LEFTOVER_TIMEOUT_MS;
+    // read the live duration from State (ms)
+    const videoDuration = State.VIDEO_DURATION_MS || 0;
 
-    // Persist the computed timeout in application state for visibility elsewhere
-    INACTIVITY_TIMEOUT_MS = timeoutMs;
+    const timeoutMs = anyPressed ? (videoDuration + LEFTOVER_TIMEOUT_MS) : LEFTOVER_TIMEOUT_MS;
+
+    console.log('[sessionLogic] computeInactivityTimeout:', {
+        anyPressed,
+        videoDuration,
+        LEFTOVER_TIMEOUT_MS,
+        timeoutMs
+    });
 
     return timeoutMs;
 }
@@ -134,6 +137,41 @@ export function resetInactivityTimer() {
         startInactivityTimer();
     }
 }
+
+/**
+ * When a video button is pressed, call this to update the runtime VIDEO_DURATION_MS
+ * based on that button's "duration" attribute (assumed seconds).
+ *
+ * videoId is the numeric data-video-id (e.g. 1,2,3).
+ * If the attribute is missing or invalid, the function does nothing.
+ *
+ * Returns the new VIDEO_DURATION_MS (ms) or null if unchanged.
+ */
+export function setVideoDurationForId(videoId) {
+    const btn = getVideoButton(videoId);
+    if (!btn) {
+        console.warn('[sessionLogic] setVideoDurationForId: button not found for id', videoId);
+        return null;
+    }
+    const raw = btn.getAttribute('duration');
+    if (!raw) {
+        console.log('[sessionLogic] setVideoDurationForId: no duration attribute on button', videoId);
+        return null;
+    }
+    const seconds = Number(raw);
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+        console.warn('[sessionLogic] invalid duration attribute on button', videoId, raw);
+        return null;
+    }
+
+    const ms = Math.round(seconds * 1000);
+    State.setVideoDuration(ms); // update appState mutable variable
+
+    // IMPORTANT: read back from State to show the actual live value
+    console.log('[sessionLogic] VIDEO_DURATION_MS now (from State):', State.VIDEO_DURATION_MS, 'ms for videoId', videoId);
+    return State.VIDEO_DURATION_MS;
+}
+
 
 /**
  * Checks if all video play buttons currently present are disabled. If so, trigger session end.

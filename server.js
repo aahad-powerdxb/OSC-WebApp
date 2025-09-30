@@ -19,63 +19,92 @@ let OSC_PORT = parseInt(process.env.OSC_PORT || '57120', 10);
 
 // --- CSV Logging Functions ---
 
-const CSV_HEADERS = [
+let BASE_CSV_HEADERS = [
     'timestamp', 
     'name', 
-    'email', 
-    'button1pushed', 
-    'button2pushed', 
-    'button3pushed', 
-    'button4pushed'
+    'email'
 ];
 
 /**
  * Appends a log entry to data.csv, creating the file and headers if it doesn't exist.
  * @param {Object} data - The data object received from the client.
  */
+// Updated logToCSV implementation:
 function logToCSV(data) {
-    // Check if file exists to determine if we need to write headers
-    const fileExists = fs.existsSync(LOG_FILE);
-    let logStream = null;
+  // Helper: get video keys sorted (video1, video2, ...)
+  const videoKeys = Object.keys(data)
+    .filter(k => /^video\d+$/.test(k))
+    .sort((a, b) => {
+      const na = parseInt(a.replace('video',''), 10);
+      const nb = parseInt(b.replace('video',''), 10);
+      return na - nb;
+    });
 
-    try {
-        // Use append mode ('a')
-        logStream = fs.createWriteStream(LOG_FILE, { flags: 'a' });
+  // Final headers we want for this row (base + any detected video keys)
+  const desiredHeaders = BASE_CSV_HEADERS.concat(videoKeys);
 
-        // Write headers only if the file did not exist
-        if (!fileExists) {
-            logStream.write(CSV_HEADERS.join(',') + '\n');
-            console.log('Created and wrote headers to data.csv');
-        }
+  // Ensure LOG_FILE exists and the header matches desired headers (or extend it)
+  const fileExists = fs.existsSync(LOG_FILE);
 
-        // Map the CSV headers to the corresponding values from the data object
-        const row = CSV_HEADERS.map(header => {
-            let value = data[header];
-            if (typeof value === 'boolean') {
-                // Convert boolean to 1 (true) or 0 (false)
-                value = value ? 1 : 0;
-            } else if (typeof value === 'string') {
-                // Simple CSV quoting: escape double quotes by doubling them, and enclose in quotes
-                if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-                     value = `"${value.replace(/"/g, '""')}"`;
-                }
-            } else if (value === null || typeof value === 'undefined') {
-                 value = ''; // Ensure null/undefined values are empty strings
-            }
-            return String(value);
-        }).join(',');
+  try {
+    if (!fileExists) {
+      // Create file and write header
+      const headerLine = desiredHeaders.join(',') + '\n';
+      fs.writeFileSync(LOG_FILE, headerLine, 'utf8');
+      console.log('Created data.csv with headers:', desiredHeaders);
+    } else {
+      // File exists: read current header and extend if needed
+      const raw = fs.readFileSync(LOG_FILE, 'utf8');
+      // Split into lines safely for CRLF / LF
+      const lines = raw.split(/\r?\n/);
+      const existingHeaderLine = lines[0] || '';
+      const existingHeaders = existingHeaderLine.length ? existingHeaderLine.split(',') : [];
 
-        logStream.write(row + '\n');
-        console.log('Logged data to CSV:', row);
-
-    } catch (err) {
-        console.error('ERROR logging data to CSV:', err);
-    } finally {
-        if (logStream) {
-            // Ensure the stream is closed
-            logStream.end();
-        }
+      // Find new headers that aren't in existingHeaders
+      const missing = desiredHeaders.filter(h => !existingHeaders.includes(h));
+      if (missing.length > 0) {
+        // Merge headers by appending missing columns at the end
+        const newHeader = existingHeaders.concat(missing);
+        lines[0] = newHeader.join(',');
+        // Write entire file back with updated header (previous rows remain but will lack values for new columns)
+        fs.writeFileSync(LOG_FILE, lines.join('\n'), 'utf8');
+        console.log('Updated CSV header to include new columns:', missing);
+      }
     }
+
+    // Now compute the row using the CSV header currently in the file (read it fresh)
+    const currentRaw = fs.readFileSync(LOG_FILE, 'utf8');
+    const currentFirstLine = currentRaw.split(/\r?\n/)[0] || '';
+    const currentHeaders = currentFirstLine.length ? currentFirstLine.split(',') : BASE_CSV_HEADERS.slice();
+
+    // Build row values in the same order as currentHeaders
+    const rowValues = currentHeaders.map(header => {
+      let value = data.hasOwnProperty(header) ? data[header] : '';
+
+      // normalize booleans to 1/0
+      if (typeof value === 'boolean') value = value ? 1 : 0;
+
+      // ensure strings containing commas/quotes/newlines are quoted for CSV
+      if (typeof value === 'string') {
+        if (value.includes('"')) value = value.replace(/"/g, '""');
+        if (value.includes(',') || value.includes('\n') || value.includes('"')) {
+          value = `"${value}"`;
+        }
+      }
+
+      // convert undefined/null to empty string
+      if (value === null || typeof value === 'undefined') value = '';
+
+      return String(value);
+    }).join(',');
+
+    // Append the row
+    fs.appendFileSync(LOG_FILE, rowValues + '\n', 'utf8');
+    console.log('Logged data to CSV:', rowValues);
+
+  } catch (err) {
+    console.error('ERROR logging data to CSV:', err);
+  }
 }
 
 

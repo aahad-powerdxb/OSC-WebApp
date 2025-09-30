@@ -76,7 +76,7 @@ export function send(n) {
     }
 
     // --- TRACK BUTTON PRESS ---
-    const buttonKey = `button${n}`;
+    const buttonKey = button.getAttribute('value');
     if (State.buttonStatus.hasOwnProperty(buttonKey)) {
         State.buttonStatus[buttonKey] = true;
     }

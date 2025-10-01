@@ -1,6 +1,8 @@
 // networking.js
 import {
     statusEl,
+    showStatus,
+    hideStatusImmediately,
     hostInput,
     portInput,
     setTargetBtn,
@@ -8,6 +10,7 @@ import {
     configFormContainerEl,
     configStatusEl,
     getActiveStatusEl,
+
 } from './dom.js';
 
 // Constants
@@ -31,14 +34,16 @@ export function setOnMessageCallback(callback) {
 /** Updates the user-facing status on the main controller screen. */
 export function updateMainStatus() {
     if (ws.readyState !== WebSocket.OPEN) {
-        statusEl.textContent = 'Disconnected from OSC Forwarder.';
+        // statusEl.textContent = 'Disconnected from OSC Forwarder.';
         return;
     }
 
-    if (lastKnownVideo === 0) {
-        statusEl.textContent = 'Playback Reset';
+    if (lastKnownVideo !== 0) {
+        // statusEl.textContent = `Playing Video ${lastKnownVideo}!`;
+        showStatus(statusEl, `Playing Video ${lastKnownVideo}!`, 2000);
     } else {
-        statusEl.textContent = `Playing Video ${lastKnownVideo}!`;
+        // statusEl.textContent = 'Playback Reset';
+        // showStatus(statusEl, 'Playback Reset', 2000);
     }
 }
 

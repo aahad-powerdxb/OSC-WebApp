@@ -1,8 +1,8 @@
 import * as DOM from './dom.js';
 import * as Net from './networking.js';
 import * as State from './appState.js';
-import { getVideoButton, enableAllVideoButtons } from './helper/domHelpers.js';
-import { initializeButtonStatus, resetInactivityTimer, setVideoDurationForId, checkAllVideosSentAndReset, clearInactivityTimer, startInactivityTimer, handleVideoCommandError } from './helper/sessionLogic.js';
+import { getVideoButton, hideAndDisableButton, enableAllVideoButtons } from './helper/domHelpers.js';
+import { initializeButtonStatus, setOnVideoDurationEnd, resetInactivityTimer, setVideoDurationForId, checkAllVideosSentAndReset, clearInactivityTimer, startInactivityTimer, handleVideoCommandError } from './helper/sessionLogic.js';
 import { handlePasswordResult, submitPassword, setTarget, setTargetAndTest } from './helper/authAndConfig.js';
 import { setupEventListeners } from './helper/eventHandlers.js';
 
@@ -30,7 +30,7 @@ function handleServerMessage(data) {
             break;
 
         case 'sent':
-            // Watch for /@3/20 ["wtm", N] messages and update main UI state
+            // Watch for /@3/20 ["Video", N] messages and update main UI state
             if (data.address === '/@3/20' && Array.isArray(data.args) && data.args.length >= 2 && data.args[0] === 'Video') {
                 const videoNum = parseInt(data.args[1], 10);
                 if (Number.isInteger(videoNum) && videoNum >= HOLDING_VIDEO_ID) { 
@@ -39,8 +39,6 @@ function handleServerMessage(data) {
                     
                     if (videoNum !== HOLDING_VIDEO_ID) {
                         checkAllVideosSentAndReset();
-                    } else {
-                        enableAllVideoButtons();
                     }
                 }
             }
@@ -72,7 +70,7 @@ export function send(n) {
     // Disable only the specific button pressed
     const button = getVideoButton(n);
     if (button) {
-        button.disabled = true;
+        hideAndDisableButton(button);
     }
 
     // --- TRACK BUTTON PRESS ---
@@ -96,7 +94,6 @@ export function sendHolding() {
     // Update local state for error recovery
     State.setCurrentVideoId(HOLDING_VIDEO_ID);
     Net.sendVideoCommand(HOLDING_VIDEO_ID);
-    resetInactivityTimer(); // Reset timer on interaction
 }
 
 // ---------- Lead form logic (Step 1 to Step 2 transition) ----------
@@ -107,16 +104,20 @@ export function submitLeadForm() {
 
     // Basic validation
     if (!name || !email) {
-        DOM.leadStatusEl.textContent = 'Name and Email are required.';
-        DOM.leadStatusEl.classList.remove('hidden');
+        // DOM.leadStatusEl.textContent = 'Name and Email are required.';
+        // DOM.leadStatusEl.classList.remove('hidden');
+
+        DOM.showStatus(DOM.leadStatusEl, 'Name and Email are required.', 2000);
         return;
     }
 
     // Simple email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        DOM.leadStatusEl.textContent = 'Please enter a valid email address.';
-        DOM.leadStatusEl.classList.remove('hidden');
+        // DOM.leadStatusEl.textContent = 'Please enter a valid email address.';
+        // DOM.leadStatusEl.classList.remove('hidden');
+
+        DOM.showStatus(DOM.leadStatusEl, 'Please enter a valid email address.', 2000);
         return;
     }
 
@@ -126,13 +127,15 @@ export function submitLeadForm() {
     // --------------------------------------------
 
     // Success message before transition
-    DOM.leadStatusEl.textContent = 'Details captured. Accessing controls...';
-    DOM.leadStatusEl.classList.remove('hidden');
+    // DOM.leadStatusEl.textContent = 'Details captured. Accessing controls...';
+    // DOM.leadStatusEl.classList.remove('hidden');
 
     // Transition to step 2 (video controls) after a brief moment
     setTimeout(() => {
         showMainContent(); // Use local function for navigation
-        DOM.leadStatusEl.classList.add('hidden'); // Clear status after transition
+        // DOM.leadStatusEl.classList.add('hidden'); // Clear status after transition
+
+        DOM.hideStatusImmediately(DOM.leadStatusEl);
     }, 500);
 }
 
@@ -163,4 +166,6 @@ export function initApp() {
     DOM.showStartScreen();
     Net.updateConfigStatus();
     Net.populateCurrentTargetFromServer();
+
+    setOnVideoDurationEnd(sendHolding);
 }

@@ -28,11 +28,41 @@ export function getVideoButton(n) {
 }
 
 /**
- * Ensures all video buttons are enabled. Used when loading Step 2 or on reset.
+ * Make a button visually hidden but keep its disabled state for logic checks.
+ * Accepts either an element or a numeric videoId (will look up the element).
+ * @param {HTMLElement|string|number} elOrId
+ */
+export function hideAndDisableButton(elOrId) {
+  const btn = (typeof elOrId === 'number' || typeof elOrId === 'string')
+    ? getButtonByVideoId(elOrId)
+    : elOrId;
+
+  if (!btn) return;
+  btn.disabled = true;                     // keep disabled flag (back-end check)
+  btn.classList.add('invisible-button');   // hide visually (keeps layout)
+}
+
+/**
+ * Show and enable a button (reverse of hideAndDisableButton).
+ * @param {HTMLElement|string|number} elOrId
+ */
+export function showAndEnableButton(elOrId) {
+  const btn = (typeof elOrId === 'number' || typeof elOrId === 'string')
+    ? getButtonByVideoId(elOrId)
+    : elOrId;
+
+  if (!btn) return;
+  btn.disabled = false;
+  btn.classList.remove('invisible-button');
+}
+
+/**
+ * Enable & show all video buttons (used when receiving holding ack).
+ * Keeps the UI consistent by calling showAndEnableButton for each.
  */
 export function enableAllVideoButtons() {
-    const buttons = DOM.formStep2El ? DOM.formStep2El.querySelectorAll('.buttons-row button') : [];
-    buttons.forEach(btn => {
-        btn.disabled = false;
-    });
+  const buttons = document.querySelectorAll('.buttons-row button[data-video-id]');
+  buttons.forEach(btn => {
+    showAndEnableButton(btn);
+  });
 }

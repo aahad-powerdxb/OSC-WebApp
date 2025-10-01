@@ -94,16 +94,13 @@
           <div class="form-row justify-center mt-15">
             <button type="button" class="primary-btn" onclick="submitLeadForm()">Next</button>
           </div>
-          <div id="leadStatus" class="status error hidden"></div>
+          <div id="leadStatus" class="status statusbar error hidden"></div>
         </div>
 
         <!-- STEP 2: Video Controls (Initially hidden) -->
         <div id="formStep2" class="form-step form-step-2 hidden">
-          <!-- The Step 2 title is within the step container to be hidden/shown correctly -->
-          <h2 style="margin-top: 0;">Select Video</h2>
-
           <div class="buttons-row">
-            <button onclick="send(1)" data-video-id="1" value="video1" duration="60">Play 1</button>
+            <button onclick="send(1)" data-video-id="1" value="video1" duration="10">Play 1</button>
             <button onclick="send(2)" data-video-id="2" value="video2" duration="61">Play 2</button>
             <button onclick="send(3)" data-video-id="3" value="video3" duration="62">Play 3</button>
             <!-- <button onclick="send(4)" data-video-id="4" value="video4">Play 4</button> -->
@@ -111,7 +108,7 @@
 
           <hr class="divider">
 
-          <div id="status" class="status">Not connected</div>
+          <div id="status" class="status statusbar hidden"></div>
         </div>
         
         <!-- STEP 3: Thank You Screen (Initially hidden) -->

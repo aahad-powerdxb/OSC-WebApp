@@ -13,7 +13,11 @@
 
 /* Main full-screen card (Now contains the two form steps) */
 .main-card {
-  background: #cdcdcd;
+  background-image: url("../img/BG.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
   padding: 30px 25px;
   border-radius: 18px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -33,7 +37,7 @@
 /* Buttons row (shared) */
 .buttons-row {
   display:flex;
-  justify-content:space-between;
+  justify-content:space-around;
   gap:12px;
   margin: 20px 0;
 }
@@ -61,14 +65,14 @@
 }
 
 /* Status inside main card (bolder) */
-.main-card #status {
+/* .main-card #status {
   font-size:18px;
   font-weight:600;
   color:var(--muted);
   border-radius:8px;
   background: transparent;
-  padding: 10px; /* added padding for visibility */
-}
+  padding: 10px;
+} */
 
 /* Responsive adjustment for small screens */
 @media (max-width: 600px) {

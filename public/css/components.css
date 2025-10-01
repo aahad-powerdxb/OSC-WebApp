@@ -13,6 +13,55 @@
   box-sizing:border-box;
 }
 
+/* floating leadStatus notification (top-center) */
+.statusbar.floating {
+  position: fixed;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+
+  background: #7FBC03;
+  color: #fff;                  /* white text */
+  padding: 8px 14px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  min-width: 200px;
+  max-width: calc(100% - 40px);
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.2;
+
+  /* start hidden via opacity and slide */
+  opacity: 0;
+  pointer-events: auto;
+  display: block; /* we manage visibility via classes */
+}
+
+/* show animation */
+.statusbar.floating.show {
+  animation: slideDownFade 220ms ease forwards;
+}
+
+/* subtle hide animation */
+.statusbar.floating.hide {
+  animation: fadeOutUp 180ms ease forwards;
+}
+
+/* animations */
+@keyframes slideDownFade {
+  from { transform: translateX(-50%) translateY(-8px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);     opacity: 1; }
+}
+@keyframes fadeOutUp {
+  from { transform: translateX(-50%) translateY(0);     opacity: 1; }
+  to   { transform: translateX(-50%) translateY(-8px);  opacity: 0; }
+}
+
+/* keep existing hidden helper, but floating() will remove hidden when used */
+.hidden { display:none !important; }
+
 /* Base button style (shared across app) */
 button{
   margin:8px;
@@ -25,6 +74,7 @@ button{
   font-size:14px;
   font-weight:500;
   min-width: 90px; /* Ensure minimum width for touch targets */
+  max-width: 400px; /* Ensure minimum width for touch targets */
 }
 
 button:hover {
@@ -35,6 +85,14 @@ button:disabled {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+/* keep layout, but make the button visually hidden and non-interactive */
+.invisible-button {
+  display: none;  /* removes it from layout */
+  visibility: hidden;        /* keeps the space in the layout */
+  pointer-events: none;      /* ensure no mouse events */
+  user-select: none;         /* avoid accidental selection */
+  opacity: 0;                /* double-safety — fully transparent */
 }
 
 /* Primary buttons (Used for lead form next/submit) */
@@ -68,12 +126,11 @@ button:disabled {
 
 /* Status area */
 .status{
-  color:#444;
   word-break:break-word;
 }
 
 /* Error status */
-.status.error { color: #b00020; }
+.status.error { color: #ff0000; }
 
 
 /* Simple form layout used by config & password */

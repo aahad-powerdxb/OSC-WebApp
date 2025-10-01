@@ -2,9 +2,12 @@
 import * as DOM from '../dom.js';
 import * as Net from '../networking.js';
 import * as State from '../appState.js';
-import { getVideoButton } from './domHelpers.js';
+import { getVideoButton, showAndEnableButton } from './domHelpers.js';
 
 const { HOLDING_VIDEO_ID, LEFTOVER_TIMEOUT_MS } = State;
+
+let videoDurationTimerId = null;           // the secondary timer id
+let onVideoDurationEndCallback = null;     // registered callback from appLogic
 
 /**
  * Dynamically creates the initial buttonStatus object based on the currently available buttons' 'value' attribute.
@@ -33,11 +36,14 @@ export function initializeButtonStatus() {
  * Clears the inactivity timer (if one exists) and resets the stored id in State.
  */
 export function clearInactivityTimer() {
+    // Clear the main inactivity timer
     if (State.inactivityTimeoutId) {
         clearTimeout(State.inactivityTimeoutId);
         State.setInactivityTimeoutId(null);
-        console.log("Inactivity timer cleared.");
+        console.log('[sessionLogic] Inactivity timer cleared.');
     }
+    // Also clear the secondary video-duration timer
+    clearVideoDurationTimer();
 }
 
 /**
@@ -82,6 +88,75 @@ export function transitionToStep3AndReset() {
 }
 
 /**
+ * Register a callback that will be called when the video-duration timer expires.
+ * appLogic should call setOnVideoDurationEnd(sendHolding) during initialization.
+ * @param {Function|null} cb
+ */
+export function setOnVideoDurationEnd(cb) {
+  if (cb && typeof cb !== 'function') {
+    throw new TypeError('setOnVideoDurationEnd expects a function or null');
+  }
+  onVideoDurationEndCallback = cb || null;
+}
+
+/**
+ * Clears the secondary video-duration timer, if present.
+ */
+export function clearVideoDurationTimer() {
+  if (videoDurationTimerId) {
+    clearTimeout(videoDurationTimerId);
+    videoDurationTimerId = null;
+    console.log('[sessionLogic] Video-duration timer cleared.');
+  }
+}
+
+/**
+ * Starts the secondary video-duration timer. When it fires, call the registered callback
+ * (or perform a fallback action if no callback is registered).
+ *
+ * The timer duration is the current State.VIDEO_DURATION_MS (ms).
+ */
+function startVideoDurationTimer() {
+  // Clear any previous secondary timer first
+  clearVideoDurationTimer();
+
+  const durationMs = State.VIDEO_DURATION_MS || 0;
+  if (!Number.isFinite(durationMs) || durationMs <= 0) {
+    console.warn('[sessionLogic] startVideoDurationTimer: invalid State.VIDEO_DURATION_MS:', durationMs);
+    return;
+  }
+
+  // Set the timer
+  videoDurationTimerId = setTimeout(() => {
+    videoDurationTimerId = null; // clear stored id (timer fired)
+
+    console.log('[sessionLogic] Video-duration timer fired; executing registered handler.');
+
+    if (typeof onVideoDurationEndCallback === 'function') {
+      try {
+        onVideoDurationEndCallback(); // this should call appLogic.sendHolding()
+      } catch (err) {
+        console.error('[sessionLogic] error in onVideoDurationEndCallback:', err);
+      }
+    } else {
+      // fallback: if no callback is registered, attempt to do the minimal "holding" action here:
+      // - set state current video to HOLDING and send holding message via Net directly
+      // (this avoids importing appLogic)
+      State.setCurrentVideoId(HOLDING_VIDEO_ID);
+      try {
+        Net.sendVideoCommand(HOLDING_VIDEO_ID);
+      } catch (err) {
+        console.error('[sessionLogic] fallback sendHolding via Net failed:', err);
+      }
+      // restart inactivity timer so the session continues with the new state
+    //   resetInactivityTimer();
+    }
+  }, durationMs);
+
+  console.log(`[sessionLogic] Video-duration timer started for ${durationMs / 1000}s (id: ${videoDurationTimerId}).`);
+}
+
+/**
  * Compute the appropriate inactivity timeout based on whether any video button has been pressed.
  *
  * - If NO buttons pressed: LEFTOVER_TIMEOUT_MS
@@ -113,18 +188,28 @@ function computeInactivityTimeout() {
  * Clears any previous timer first.
  */
 export function startInactivityTimer() {
-    // Clear existing timer if present
+    // Clear existing main timer if present
     if (State.inactivityTimeoutId) {
         clearTimeout(State.inactivityTimeoutId);
         State.setInactivityTimeoutId(null);
     }
 
-    // Compute appropriate timeout and set a new timer
+    // Compute appropriate timeout for inactivity and set main timer
     const timeoutMs = computeInactivityTimeout();
     const id = setTimeout(transitionToStep3AndReset, timeoutMs);
     State.setInactivityTimeoutId(id);
+    console.log(`[sessionLogic] Inactivity timer started/reset for ${timeoutMs / 1000}s (id: ${id}).`);
 
-    console.log(`Inactivity timer started/reset for ${timeoutMs / 1000} seconds (${timeoutMs} ms).`);
+    // ALSO start secondary video-duration timer that will invoke sendHolding after State.VIDEO_DURATION_MS
+    // Only start the secondary timer if there is a meaningful VIDEO_DURATION_MS set and we're not in holding state
+    // You might want to only start this when a video is currently playing (State.currentVideoId != HOLDING_VIDEO_ID).
+    // Here we check currentVideoId to avoid starting it unnecessarily.
+    if (State.currentVideoId !== HOLDING_VIDEO_ID) {
+      startVideoDurationTimer();
+    } else {
+      // If in holding state, ensure secondary timer is cleared
+      clearVideoDurationTimer();
+    }
 }
 
 /**
@@ -199,7 +284,7 @@ export function handleVideoCommandError() {
     if (State.currentVideoId !== HOLDING_VIDEO_ID) {
         const button = getVideoButton(State.currentVideoId);
         if (button) {
-            button.disabled = false;
+            showAndEnableButton(button);
         }
     }
 }

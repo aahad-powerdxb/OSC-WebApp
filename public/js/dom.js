@@ -34,6 +34,53 @@ export const leadInstructionsEl = document.getElementById('leadInstructions');
 // ---------- UI Utilities and Navigation Functions ----------
 
 /**
+ * Shows the status of a given page for a brief period of time at the top of the screen.
+ * @param {string} message - The message to display.
+ * @param {number} [duration=3500] - Duration in milliseconds to show the message.
+ */
+
+export function showStatus(statusElement, message, duration = 3500) {
+
+  if (!statusElement) return;
+  // Reset previous timers/animations
+  if (statusElement._leadHideTimeout) {
+    clearTimeout(statusElement._leadHideTimeout);
+    statusElement._leadHideTimeout = null;
+  }
+  statusElement.textContent = message;
+  statusElement.classList.remove('hidden', 'hide');
+  statusElement.classList.add('floating', 'show');
+  statusElement.setAttribute('role', 'status');
+  statusElement.setAttribute('aria-live', 'polite');
+  // Auto-hide
+  statusElement._leadHideTimeout = setTimeout(() => {
+    // start hide animation
+    statusElement.classList.remove('show');
+    statusElement.classList.add('hide');
+    // after animation, fully hide
+    statusElement._leadHideTimeout = setTimeout(() => {
+      statusElement.classList.remove('floating', 'hide');
+      statusElement.classList.add('hidden');
+      statusElement._leadHideTimeout = null;
+    }, 220);
+  }, duration);
+}
+
+/**
+ * Immediately hides the status element, cancelling any ongoing timers.
+ */
+export function hideStatusImmediately(statusElement) {
+  if (!statusElement) return;
+  if (statusElement._leadHideTimeout)
+    {
+        clearTimeout(statusElement._leadHideTimeout);
+        statusElement._leadHideTimeout = null;
+    }
+  statusElement.classList.remove('floating', 'show', 'hide');
+  statusElement.classList.add('hidden');
+}
+
+/**
  * Hides all main application views (Password Wall, Config Form).
  */
 function hideOtherScreens() {

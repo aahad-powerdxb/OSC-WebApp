@@ -1,8 +1,8 @@
 // ---------- Constants & State ----------
 export const HOLDING_VIDEO_ID = 0;
 export const PASSWORD_TIMEOUT_MS = 15_000;
-export const VIDEO_DURATION_MS = 10_000; // Duration to wait before allowing next video (20 seconds)
-export const LEFTOVER_TIMEOUT_MS = 10_000; // Duration to wait before allowing next video (20 seconds)
+export const VIDEO_DURATION_MS = 90_000; // Duration to wait before allowing next video (20 seconds)
+export const LEFTOVER_TIMEOUT_MS = 30_000; // Duration to wait before allowing next video (20 seconds)
 // export let INACTIVITY_TIMEOUT_MS = LEFTOVER_TIMEOUT_MS; // 90 seconds (for Step 2 inactivity)
 export const TAP_THRESHOLD = 5;
 export const TAP_TIME_LIMIT = 500; // ms between taps to count

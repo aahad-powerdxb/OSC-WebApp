@@ -89,7 +89,7 @@ export function sendVideoCommand(n) {
     lastKnownVideo = n;
     updateMainStatus();
 
-    const msg = { address: '/@3/20', args: ['wtm', n] };
+    const msg = { address: '/@3/20', args: ['Video', n] };
     sendJSON(msg);
 }
 

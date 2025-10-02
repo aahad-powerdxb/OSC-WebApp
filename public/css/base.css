@@ -36,3 +36,13 @@ h2 {
 .mt-10 { margin-top:10px; }
 .mt-15 { margin-top:15px; }
 .justify-center { justify-content:center; }
+
+p{
+  user-select: none;
+}
+
+label{
+  user-select: none;
+  font-weight: 200;
+}
+

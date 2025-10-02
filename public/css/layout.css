@@ -31,59 +31,86 @@
   display:flex;
   flex-direction:column;
   justify-content:center;
+  align-items: center;
   overflow: auto; 
+}
+
+.form-step-1{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 500px;
+  height: auto;
+}
+
+.form-step-2{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: auto;
+}
+
+.btn-img{
+  width: 120px;
+  height: 120px;
+  margin-bottom: 6px;
 }
 
 /* Buttons row (shared) */
 .buttons-row {
   display:flex;
-  justify-content:space-around;
-  gap:12px;
-  margin: 20px 0;
+  justify-content:center;
+  width: 80%;
+  gap:60px;
+  margin: 40px 0;
 }
 
 /* Main card large action buttons (for video selection) */
-.main-card .buttons-row button {
-  flex:1;
+.buttons-row button {
+  /* flex:1; */
+  
   padding:18px 10px;
   font-weight:700;
   font-size:20px;
   color:#fff;
-  border:none;
-  border-radius:15px;
-  background: linear-gradient(145deg, var(--accent1), var(--accent2));
+  border: solid var(--green-accent1);
+  border-width: 3px;        /* top right bottom left = 1px */
+  border-bottom-width: 5px; /* make bottom thicker */
+  background: var(--green-accent1);
   box-shadow:0 4px 15px rgba(0,0,0,0.15);
-  height:5rem;
+  width: 16rem;
+  height:14rem;
   /* Ensure text doesn't wrap on small buttons */
   white-space: nowrap;
 }
 
-.main-card .buttons-row button:hover {
-  background: linear-gradient(145deg, #5a6ed0, #674391);
+.buttons-row button div {
+  display: flex;
+  flex-direction: column;  /* Stack icon above text */
+  align-items: center;     /* Center content horizontally */
+  justify-content: center; /* Center content vertically */
+}
+
+.buttons-row button:hover {
+  background: #fff;
+  color: var(--green-accent1);
   transform: translateY(-2px);
   box-shadow:0 6px 20px rgba(0,0,0,0.25);
 }
-
-/* Status inside main card (bolder) */
-/* .main-card #status {
-  font-size:18px;
-  font-weight:600;
-  color:var(--muted);
-  border-radius:8px;
-  background: transparent;
-  padding: 10px;
-} */
 
 /* Responsive adjustment for small screens */
 @media (max-width: 600px) {
     .main-card {
         padding: 15px;
     }
-    .main-card .buttons-row {
+    .buttons-row {
         flex-wrap: wrap;
         gap: 10px;
     }
-    .main-card .buttons-row button {
+    .buttons-row button {
         flex-basis: 48%; /* Two buttons per row */
         height: 4rem;
         font-size: 16px;

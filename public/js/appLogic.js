@@ -78,6 +78,8 @@ export function send(n) {
     if (State.buttonStatus.hasOwnProperty(buttonKey)) {
         State.buttonStatus[buttonKey] = true;
     }
+
+    console.log("buttonKey: ", buttonKey);
     // --------------------------
     
     // Update local state for error recovery and send command
@@ -86,7 +88,7 @@ export function send(n) {
     // update VIDEO_DURATION_MS from the pressed button's "duration" attr
     setVideoDurationForId(n);
 
-    Net.sendVideoCommand(n);
+    Net.sendVideoCommand(n, buttonKey);
     resetInactivityTimer(); // Reset timer on interaction
 }
 

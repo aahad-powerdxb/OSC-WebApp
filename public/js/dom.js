@@ -121,8 +121,9 @@ export function showStartScreen(onShow) {
     if (nameInputEl) nameInputEl.value = '';
     if (emailInputEl) emailInputEl.value = '';
 
-    if (controllerTitleEl) controllerTitleEl.textContent = 'Welcome to the Controller';
-    if (leadInstructionsEl) leadInstructionsEl.textContent = 'Please enter your details to proceed to the video controls.';
+    if (controllerTitleEl) controllerTitleEl.classList.remove('hidden');
+    if (controllerTitleEl) controllerTitleEl.textContent = 'Mental Awareness Experience';
+    if (leadInstructionsEl) leadInstructionsEl.textContent = 'Please enter your details';
     if (leadInstructionsEl) leadInstructionsEl.classList.remove('hidden');
     if (leadStatusEl) leadStatusEl.classList.add('hidden');
 
@@ -141,7 +142,8 @@ export function showMainContent() {
     if (formStep2El) formStep2El.classList.remove('hidden');
 
     // Update main card text
-    if (controllerTitleEl) controllerTitleEl.textContent = 'Select Video';
+    if (controllerTitleEl) controllerTitleEl.classList.remove('hidden');
+    if (controllerTitleEl) controllerTitleEl.textContent = 'See life through the eyes of';
     if (leadInstructionsEl) leadInstructionsEl.classList.add('hidden');
 }
 
@@ -157,7 +159,8 @@ export function showStep3() {
     if (formStep3El) formStep3El.classList.remove('hidden');
     
     // Update main card text for the 'Thank You' screen
-    if (controllerTitleEl) controllerTitleEl.textContent = 'Session Complete';
+    if (controllerTitleEl) controllerTitleEl.classList.add('hidden');
+    if (controllerTitleEl) controllerTitleEl.textContent = '';
     if (leadInstructionsEl) leadInstructionsEl.classList.add('hidden');
 }
 

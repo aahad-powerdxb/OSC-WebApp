@@ -2,7 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- <meta name="viewport" content="width=device-width,initial-scale=1" /> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <!-- Linking the new CSS files -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
@@ -77,8 +78,8 @@
   <div id="mainContent" class="page-container controller-page">
     <div class="main-card lead-card">
       <!-- Title and Instructions change dynamically based on step -->
-      <h2 id="controllerTitle">Welcome to the Controller</h2>
-      <p style="margin-bottom: 20px; font-size: 14px; color: #666;" id="leadInstructions">Please enter your details to proceed to the video controls.</p>
+      <h2 id="controllerTitle">Mental Awareness Experience</h2>
+      <p style="margin-bottom: 20px; font-size: 20px; color: #000000;" id="leadInstructions">Please enter your details</p>
 
       <form id="leadForm" onsubmit="return false;">
         <!-- STEP 1: Name and Email (Visible initially) -->
@@ -91,7 +92,7 @@
             <label for="emailInput">Email</label>
             <input id="emailInput" type="email"/>
           </div>
-          <div class="form-row justify-center mt-15">
+          <div class="btn-row mt-15">
             <button type="button" class="primary-btn" onclick="submitLeadForm()">Next</button>
           </div>
           <div id="leadStatus" class="status statusbar error hidden"></div>
@@ -100,21 +101,37 @@
         <!-- STEP 2: Video Controls (Initially hidden) -->
         <div id="formStep2" class="form-step form-step-2 hidden">
           <div class="buttons-row">
-            <button onclick="send(1)" data-video-id="1" value="video1" duration="10">Play 1</button>
-            <button onclick="send(2)" data-video-id="2" value="video2" duration="61">Play 2</button>
-            <button onclick="send(3)" data-video-id="3" value="video3" duration="62">Play 3</button>
+            <button onclick="send(1)" data-video-id="1" value="ADHD" duration="10">
+              <div>
+                <img class="btn-img" src="./svg/icons-01.svg" alt="ADHD.svg">
+                ADHD
+              </div>
+            </button>
+
+            <button onclick="send(2)" data-video-id="2" value="Schizophrenia" duration="61">
+              <div>
+                <img class="btn-img" src="./svg/icons-02.svg" alt="Schizo.svg">
+                Schizophrenia
+              </div>
+            </button>
+
+            <button onclick="send(3)" data-video-id="3" value="Autism" duration="62">
+              <div>
+                <img class="btn-img" src="./svg/icons-03.svg" alt="Autism.svg">
+                Autism
+              </div>
+            </button>
             <!-- <button onclick="send(4)" data-video-id="4" value="video4">Play 4</button> -->
           </div>
 
           <hr class="divider">
 
-          <div id="status" class="status statusbar hidden"></div>
         </div>
+        <div id="status" class="status statusbar hidden"></div>
         
         <!-- STEP 3: Thank You Screen (Initially hidden) -->
         <div id="formStep3" class="form-step form-step-3 hidden" style="text-align: center; padding: 40px 0;">
-            <h2 style="color: #4CAF50;">Thank You!</h2>
-            <p>Your session is complete. The application will now reset.</p>
+            <h2 style="color: var(--green-accent1); font-size: 2.5em; font-weight: bold;">Thank You!</h2>
         </div>
         
         <!-- Hidden Submit Button -->

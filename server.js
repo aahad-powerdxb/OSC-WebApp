@@ -31,19 +31,21 @@ let BASE_CSV_HEADERS = [
  */
 // Updated logToCSV implementation:
 function logToCSV(data) {
-  // Helper: get video keys sorted (video1, video2, ...)
-  const videoKeys = Object.keys(data)
-    .filter(k => /^video\d+$/.test(k))
+  // Build list of extra keys (anything not in base headers)
+  const extraKeys = Object.keys(data)
+    .filter(k => !BASE_CSV_HEADERS.includes(k))
+    // sort: keep videoN numeric order if possible, otherwise alphabetical
     .sort((a, b) => {
-      const na = parseInt(a.replace('video',''), 10);
-      const nb = parseInt(b.replace('video',''), 10);
-      return na - nb;
+      const ma = a.match(/^video(\d+)$/i);
+      const mb = b.match(/^video(\d+)$/i);
+      if (ma && mb) return parseInt(ma[1], 10) - parseInt(mb[1], 10);
+      if (ma) return -1; // put videoN before other extras
+      if (mb) return 1;
+      return a.localeCompare(b);
     });
 
-  // Final headers we want for this row (base + any detected video keys)
-  const desiredHeaders = BASE_CSV_HEADERS.concat(videoKeys);
+  const desiredHeaders = BASE_CSV_HEADERS.concat(extraKeys);
 
-  // Ensure LOG_FILE exists and the header matches desired headers (or extend it)
   const fileExists = fs.existsSync(LOG_FILE);
 
   try {
@@ -55,7 +57,6 @@ function logToCSV(data) {
     } else {
       // File exists: read current header and extend if needed
       const raw = fs.readFileSync(LOG_FILE, 'utf8');
-      // Split into lines safely for CRLF / LF
       const lines = raw.split(/\r?\n/);
       const existingHeaderLine = lines[0] || '';
       const existingHeaders = existingHeaderLine.length ? existingHeaderLine.split(',') : [];
@@ -63,16 +64,14 @@ function logToCSV(data) {
       // Find new headers that aren't in existingHeaders
       const missing = desiredHeaders.filter(h => !existingHeaders.includes(h));
       if (missing.length > 0) {
-        // Merge headers by appending missing columns at the end
         const newHeader = existingHeaders.concat(missing);
         lines[0] = newHeader.join(',');
-        // Write entire file back with updated header (previous rows remain but will lack values for new columns)
         fs.writeFileSync(LOG_FILE, lines.join('\n'), 'utf8');
         console.log('Updated CSV header to include new columns:', missing);
       }
     }
 
-    // Now compute the row using the CSV header currently in the file (read it fresh)
+    // Read the current headers (after any update)
     const currentRaw = fs.readFileSync(LOG_FILE, 'utf8');
     const currentFirstLine = currentRaw.split(/\r?\n/)[0] || '';
     const currentHeaders = currentFirstLine.length ? currentFirstLine.split(',') : BASE_CSV_HEADERS.slice();
@@ -92,7 +91,6 @@ function logToCSV(data) {
         }
       }
 
-      // convert undefined/null to empty string
       if (value === null || typeof value === 'undefined') value = '';
 
       return String(value);

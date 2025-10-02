@@ -18,7 +18,8 @@ const WS_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.
 
 // State
 export let lastKnownTarget = { host: null, port: null };
-export let lastKnownVideo = 0; // 0 = holding/reset, 1..4 = videos
+export let lastKnownVideo = 0; // 0 = holding/reset, 1... = videos
+export let lastKnownVideoLabel = '';
 
 // WebSocket instance
 export const ws = new WebSocket(WS_URL);
@@ -40,7 +41,7 @@ export function updateMainStatus() {
 
     if (lastKnownVideo !== 0) {
         // statusEl.textContent = `Playing Video ${lastKnownVideo}!`;
-        showStatus(statusEl, `Playing Video ${lastKnownVideo}!`, 2000);
+        showStatus(statusEl, `You've selected ${lastKnownVideoLabel}`, 2000);
     } else {
         // statusEl.textContent = 'Playback Reset';
         // showStatus(statusEl, 'Playback Reset', 2000);
@@ -89,9 +90,10 @@ export function sendJSON(obj) {
  * Sends a command to play a video (or reset).
  * @param {number} n - Video number (0 for holding/reset, 1-4 for videos).
  */
-export function sendVideoCommand(n) {
+export function sendVideoCommand(n, label = "") {
     // Optimistic UI update
     lastKnownVideo = n;
+    lastKnownVideoLabel = label;  // <-- STORE THE LABEL
     updateMainStatus();
 
     const msg = { address: '/@3/20', args: ['Video', n] };

@@ -143,7 +143,7 @@ export function showMainContent() {
 
     // Update main card text
     if (controllerTitleEl) controllerTitleEl.classList.remove('hidden');
-    if (controllerTitleEl) controllerTitleEl.textContent = 'See life through the eyes of';
+    if (controllerTitleEl) controllerTitleEl.textContent = 'Experience a day through the eyes of';
     if (leadInstructionsEl) leadInstructionsEl.classList.add('hidden');
 }
 

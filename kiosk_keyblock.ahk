@@ -93,12 +93,13 @@ AutoLockTimer() {
     TrayTip("Kiosk", "Shortcuts LOCKED", 1)
 }
 
-; Launch Edge in kiosk mode (adjust URL / flags as needed)
-edgePath := "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-edgeArgs := '--kiosk "http://localhost:3000" --edge-kiosk-type=fullscreen --disable-pinch --no-first-run'
+; Launch in kiosk mode (adjust URL / flags as needed)
+chromePath := "C:\Program Files\Google\Chrome\Application\chrome.exe"
+chromeArgs := '--kiosk "http://localhost:3000" --disable-pinch --no-first-run'
+
 
 ; Start Edge and continue running the AHK script (so hotkeys remain active)
-Run('"' edgePath '" ' edgeArgs)
+Run('"' chromePath '" ' chromeArgs)
 
 ; Optional: wait a moment and then show tray confirmation
 Sleep 600

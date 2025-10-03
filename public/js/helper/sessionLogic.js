@@ -43,7 +43,7 @@ export function clearInactivityTimer() {
         console.log('[sessionLogic] Inactivity timer cleared.');
     }
     // Also clear the secondary video-duration timer
-    clearVideoDurationTimer();
+    // clearVideoDurationTimer();
 }
 
 /**
@@ -80,6 +80,7 @@ export function transitionToStep3AndReset() {
 
     // 4. Show Step 3 (Thank You) UI
     DOM.showStep3();
+    Net.resetVideoStatus();
 
     // 5. After a short delay, return to start screen
     setTimeout(() => {

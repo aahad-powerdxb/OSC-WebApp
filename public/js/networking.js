@@ -21,6 +21,12 @@ export let lastKnownTarget = { host: null, port: null };
 export let lastKnownVideo = 0; // 0 = holding/reset, 1... = videos
 export let lastKnownVideoLabel = '';
 
+export function resetVideoStatus()
+{
+    lastKnownVideo = 0;
+    lastKnownVideoLabel = '';
+}
+
 // WebSocket instance
 export const ws = new WebSocket(WS_URL);
 

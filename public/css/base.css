@@ -1,6 +1,8 @@
 /* Imports for variables */
 @import url('./vars.css');
 
+* { -ms-content-zooming: none; }
+
 /* Page layout and font */
 body{
   font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;

@@ -13,6 +13,8 @@ body{
   margin:0;
   background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
   position:relative;
+
+  overflow: hidden;
 }
 
 /* Common container used by main, config and password areas */

@@ -6,6 +6,84 @@ import { submitLeadForm } from '../appLogic.js'; // Call main logic entry points
 
 const { TAP_THRESHOLD, TAP_TIME_LIMIT } = State;
 
+// --- KIOSK KEY LOCKING / UNLOCKING ---
+// Place at module scope (directly after the imports / consts)
+let _unlockMode = false;
+let _unlockTimerId = null;
+const UNLOCK_DURATION_MS = 10_000; // how long unlock stays active after ctrl+alt+shift+O
+
+function setUnlockMode(on) {
+  _unlockMode = !!on;
+  if (_unlockTimerId) {
+    clearTimeout(_unlockTimerId);
+    _unlockTimerId = null;
+  }
+  if (_unlockMode) {
+    if (typeof DOM !== 'undefined' && DOM.showStatus && DOM.statusEl) {
+      DOM.showStatus(DOM.statusEl, 'Keyboard unlocked (10s)', 2000);
+    }
+    _unlockTimerId = setTimeout(() => {
+      _unlockMode = false;
+      _unlockTimerId = null;
+      if (typeof DOM !== 'undefined' && DOM.showStatus && DOM.statusEl) {
+        DOM.showStatus(DOM.statusEl, 'Keyboard locked', 1500);
+      }
+    }, UNLOCK_DURATION_MS);
+  } else {
+    if (typeof DOM !== 'undefined' && DOM.showStatus && DOM.statusEl) {
+      DOM.showStatus(DOM.statusEl, 'Keyboard locked', 1500);
+    }
+  }
+}
+
+function isTypingTarget(ev) {
+  const t = ev.target;
+  if (!t) return false;
+  const tag = (t.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea') return true;
+  if (t.isContentEditable) return true;
+  return false;
+}
+
+const protectedCombos = [
+  { test: ev => ev.key === 'F5', label: 'Refresh (F5)' },
+  { test: ev => (ev.ctrlKey && !ev.metaKey) && (ev.key === 'r' || ev.key === 'R'), label: 'Refresh (Ctrl+R)' },
+  { test: ev => (ev.ctrlKey && !ev.metaKey) && (ev.key === 'w' || ev.key === 'W'), label: 'Close Tab (Ctrl+W)' },
+  { test: ev => (ev.ctrlKey && !ev.metaKey) && (ev.key === 'q' || ev.key === 'Q'), label: 'Quit (Ctrl+Q)' },
+  { test: ev => (ev.ctrlKey && ev.shiftKey) && (ev.key === 'r' || ev.key === 'R'), label: 'Hard Refresh (Ctrl+Shift+R)' },
+  { test: ev => (ev.ctrlKey && !ev.metaKey) && (ev.key === 'p' || ev.key === 'P'), label: 'Print (Ctrl+P)' },
+  { test: ev => ev.key === 'F11', label: 'Fullscreen toggle (F11)' },
+  { test: ev => ev.altKey && (ev.key === 'F4' || ev.key === 'f4'), label: 'Close Window (Alt+F4) — may be blocked by OS' },
+  { test: ev => ev.metaKey && (ev.key === 'd' || ev.key === 'D'), label: 'Show Desktop (Win+D) — may be blocked by OS' },
+  { test: ev => ev.metaKey && (ev.key === 'ArrowDown' || ev.key === 'Down'), label: 'Win+Down — may be blocked by OS' },
+];
+
+function globalKeydownHandler(ev) {
+  try {
+    if (ev.ctrlKey && ev.altKey && ev.shiftKey && (ev.key === 'o' || ev.key === 'O')) {
+      setUnlockMode(true);
+      ev.preventDefault();
+      ev.stopPropagation();
+      return;
+    }
+    if (isTypingTarget(ev)) return;
+    if (_unlockMode) return;
+
+    for (const item of protectedCombos) {
+      if (item.test(ev)) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (typeof DOM !== 'undefined' && DOM.showStatus && DOM.statusEl) {
+          DOM.showStatus(DOM.statusEl, `Blocked: ${item.label}`, 1500);
+        }
+        return;
+      }
+    }
+  } catch (err) {
+    console.error('globalKeydownHandler error', err);
+  }
+}
+
 /**
  * Compute the "active" image path from the given src.
  * - If src contains "icons-" it replaces it with "icons_active-"
@@ -155,4 +233,8 @@ export function setupEventListeners() {
     // Wire up icon swapping for current buttons.
     // If you dynamically add/remove buttons later, call setupIconHoverSwaps() again.
     setupIconHoverSwaps();
+
+    // --- GLOBAL KEYDOWN (capture) to protect kiosk keys ---
+    // Use capture: true to get events earlier in the chain.
+    document.addEventListener('keydown', globalKeydownHandler, { capture: true, passive: false });
 }

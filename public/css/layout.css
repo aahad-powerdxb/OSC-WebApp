@@ -32,7 +32,6 @@
   flex-direction:column;
   justify-content:center;
   align-items: center;
-  overflow: auto; 
 }
 
 .form-step-1{

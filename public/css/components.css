@@ -96,8 +96,8 @@ button:disabled {
 }
 /* keep layout, but make the button visually hidden and non-interactive */
 .invisible-button {
-  display: none;  /* removes it from layout */
-  visibility: hidden;        /* keeps the space in the layout */
+  /* display: none; */
+  /* visibility: hidden; */
   pointer-events: none;      /* ensure no mouse events */
   user-select: none;         /* avoid accidental selection */
   opacity: 0;                /* double-safety — fully transparent */

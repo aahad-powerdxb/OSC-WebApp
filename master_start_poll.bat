@@ -1,9 +1,9 @@
 @echo off
 setlocal
 
-set "TARGET_DIR=C:\Users\AHAD_PC\Documents\Git_repositories\OSC-WebApp"
-set "AHK_EXE=C:\Program Files\AutoHotkey\AutoHotkey.exe"
-set "AHK_SCRIPT=C:\Users\AHAD_PC\Documents\Git_repositories\OSC-WebApp\kiosk_keyblock.ahk"
+set "TARGET_DIR=C:\Users\User\Documents\GitHub\OSC-WebApp"
+set "AHK_EXE=C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe"
+set "AHK_SCRIPT=C:\Users\User\Documents\GitHub\OSC-WebApp\kiosk_keyblock.ahk"
 
 echo Starting OSC WebApp...
 start "OSC WebApp Server" /D "%TARGET_DIR%" cmd /k "npm start > server.log 2>&1"

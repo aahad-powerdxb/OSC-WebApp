@@ -1,0 +1,16 @@
+
+> osc-webapp@1.0.0 start
+> node server.js
+
+[dotenv@17.2.2] injecting env (4) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+Loaded persisted config: { host: '127.0.0.1', port: 57120 }
+=== ENV VALUES ===
+process.env.OSC_HOST: 192.168.10.10
+process.env.OSC_PORT: 8000
+process.env.HTTP_PORT: 3000
+process.env.PASSWORD: SET
+Resolved values -> OSC_HOST: 127.0.0.1 OSC_PORT: 57120 HTTP_PORT: 3000
+==================
+HTTP server: http://localhost:3000
+Initial OSC target: 127.0.0.1:57120
+WS client connected ::1

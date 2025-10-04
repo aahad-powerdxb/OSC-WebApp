@@ -24,7 +24,9 @@ export let currentVideoId = HOLDING_VIDEO_ID;
 // Lead Form data captured during Step 1 submit
 export let capturedLeadData = {
     name: '',
+    nationality: '',
     email: '',
+    phone: '',
 };
 
 // Button status tracked during Step 2 (booleans show if a button was pressed). Dynamically populated.

@@ -55,7 +55,9 @@ export function transitionToStep3AndReset() {
     // 1. Build log object using captured lead data + dynamic buttonStatus keys
     const logData = {
         name: State.capturedLeadData?.name || '',
-        email: State.capturedLeadData?.email || ''
+        nationality: State.capturedLeadData?.nationality || '',
+        email: State.capturedLeadData?.email || '',
+        phone: State.capturedLeadData?.phone || ''
     };
 
     for (const key in State.buttonStatus) {

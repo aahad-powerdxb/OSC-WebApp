@@ -12,7 +12,7 @@ const { HOLDING_VIDEO_ID } = State;
 // Expose setupEventListeners for main.js bootstrap
 export { setupEventListeners };
 
-// ---------- Server Message Handling ----------
+// ---------- Server Message Handling (Unchanged) ----------
 
 function handleServerMessage(data) {
     switch (data.type) {
@@ -60,7 +60,7 @@ function handleServerMessage(data) {
 // Attach the handler to the networking module
 Net.setOnMessageCallback(handleServerMessage);
 
-// ---------- OSC / UI actions (Exported) ----------
+// ---------- OSC / UI actions (Unchanged) ----------
 
 // Re-export Auth/Config methods to maintain a flat API for main.js
 export { submitPassword, setTarget, setTargetAndTest };
@@ -98,33 +98,88 @@ export function sendHolding() {
     Net.sendVideoCommand(HOLDING_VIDEO_ID);
 }
 
+// ---------- NEW MODULAR PHONE VALIDATION FUNCTION (CORRECTED) ----------
+
+/**
+ * Validates and sanitizes a phone number.
+ * Accepts examples like:
+ *   +971 50 218 0463
+ *   +971502180463
+ *   0502180463
+ *
+ * Rejects:
+ *   multiple plus signs, consecutive spaces, letters/symbols, plus not at start, etc.
+ *
+ * @param {string} phone - The raw phone number string (already trimmed).
+ * @returns {string|null} The sanitized phone number string (e.g. '+971502180463' or '0502180463') if valid, otherwise null.
+ */
+function validateAndSanitizePhone(phone) {
+    if (!phone) return null;
+
+    // normalize some unicode spaces (NBSP) to normal space, then trim
+    phone = phone.replace(/\u00A0/g, ' ').trim();
+
+    // Count plus signs — allow at most one and only at the start
+    const plusCount = (phone.match(/\+/g) || []).length;
+    if (plusCount > 1) return null;
+    if (plusCount === 1 && phone.charAt(0) !== '+') return null;
+
+    // Only allow digits, spaces and an optional leading plus
+    // (since we've enforced plus being at index 0 above, this is safe)
+    if (!/^\+?[0-9 ]+$/.test(phone)) return null;
+
+    // Reject consecutive spaces (e.g. "50  218")
+    if (/\s{2,}/.test(phone)) return null;
+
+    // If there's a leading plus it must be immediately followed by a digit
+    if (phone.startsWith('+') && !/^\+\d/.test(phone)) return null;
+
+    // Strip all non-digit characters to compute digit-only length
+    const digitsOnly = phone.replace(/\D/g, '');
+
+    // Require a plausible digit length (adjust min/max as you like)
+    if (digitsOnly.length < 7 || digitsOnly.length > 15) return null;
+
+    // Return normalized value: keep leading + if present
+    return (phone.startsWith('+') ? '+' : '') + digitsOnly;
+}
+
 // ---------- Lead form logic (Step 1 to Step 2 transition) ----------
 
 export function submitLeadForm() {
     const name = DOM.nameInputEl.value.trim();
+    const nationality = DOM.nationalityInputEl.value.trim();
     const email = DOM.emailInputEl.value.trim();
+    const phone = DOM.phoneInputEl.value.trim();
 
     // Basic validation
-    if (!name || !email) {
-        // DOM.leadStatusEl.textContent = 'Name and Email are required.';
-        // DOM.leadStatusEl.classList.remove('hidden');
-
-        DOM.showStatus(DOM.leadStatusEl, 'Name and Email are required.', 2000);
+    // NOTE: This check ensures that the input fields have *some* content (even spaces)
+    // The phone validation below handles if the content is only invalid separators.
+    if (name.length === 0 || nationality.length === 0 || email.length === 0 || phone.length === 0) {
+        DOM.showStatus(DOM.leadStatusEl, 'Please enter all the fields', 2000);
         return;
     }
 
     // Simple email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        // DOM.leadStatusEl.textContent = 'Please enter a valid email address.';
-        // DOM.leadStatusEl.classList.remove('hidden');
-
-        DOM.showStatus(DOM.leadStatusEl, 'Please enter a valid email address.', 2000);
+        DOM.showStatus(DOM.leadStatusEl, 'Please enter a valid email address', 2000);
         return;
     }
 
+    // -----------------------------------------------------
+    // Phone number validity check using the new modular function
+    const sanitizedPhone = validateAndSanitizePhone(phone);
+    
+    if (!sanitizedPhone) {
+        // This will catch numbers that are only separators or have invalid characters/length.
+        DOM.showStatus(DOM.leadStatusEl, 'Please enter a valid mobile number (e.g. +97150... or 050...)', 2000);
+        return;
+    }
+    // -----------------------------------------------------
+    
     // --- CAPTURE DATA AND DYNAMICALLY INITIALIZE BUTTON STATUS ---
-    State.setCapturedLeadData({ name, email });
+    State.setCapturedLeadData({ name, nationality, email, phone: sanitizedPhone }); // Use the sanitized phone number
     State.setButtonStatus(initializeButtonStatus());
     // --------------------------------------------
 
@@ -142,7 +197,7 @@ export function submitLeadForm() {
 }
 
 
-// ---------- Navigation Functions (Exported via main.js) ----------
+// ---------- Navigation Functions (Unchanged) ----------
 
 export function showMainContent() {
     // clearPasswordTimeout is handled within authAndConfig and showStartScreen
@@ -162,7 +217,7 @@ export function showStartScreen() {
 };
 
 
-// ---------- Initialization ----------
+// ---------- Initialization (Unchanged) ----------
 
 export function initApp() {
     DOM.showStartScreen();

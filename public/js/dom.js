@@ -20,7 +20,9 @@ export const leadStatusEl = document.getElementById('leadStatus');
 
 // Form elements (Lead Form Step 1)
 export const nameInputEl = document.getElementById('nameInput');
+export const nationalityInputEl = document.getElementById('nationalityInput');
 export const emailInputEl = document.getElementById('emailInput');
+export const phoneInputEl = document.getElementById('phoneInput');
 export const passwordInputEl = document.getElementById('passwordInput');
 
 // Multi-step form elements
@@ -28,7 +30,7 @@ export const formStep1El = document.getElementById('formStep1');
 export const formStep2El = document.getElementById('formStep2');
 export const formStep3El = document.getElementById('formStep3');
 export const controllerTitleEl = document.getElementById('controllerTitle');
-export const leadInstructionsEl = document.getElementById('leadInstructions');
+// export const leadInstructionsEl = document.getElementById('leadInstructions');
 
 
 // ---------- UI Utilities and Navigation Functions ----------
@@ -107,6 +109,39 @@ export function getActiveStatusEl() {
 }
 
 /**
+ * Set the controller title with optional Arabic + English lines.
+ * - If `arabic` is provided, it will be rendered above the English line.
+ * - If `arabic` is empty/null, the english text will be used as a single centered line.
+ *
+ * Usage:
+ *   setControllerTitle("English text", "Arabic text");
+ *   setControllerTitle("English only");
+ */
+export function setControllerTitle(english, arabic = '') {
+  if (!controllerTitleEl) return;
+
+  // sanitize (simple) — ensure strings
+  const en = english ? String(english) : '';
+  const ar = arabic ? String(arabic) : '';
+
+  if (ar.trim()) {
+    // bilingual stacked layout
+    controllerTitleEl.classList.remove('single-line');
+    controllerTitleEl.innerHTML = `
+      <span class="title-ar" aria-hidden="false">${ar}</span>
+      <span class="title-en">${en}</span>
+    `;
+    // ARIA label for screen readers: combine both (English primary or you may localize)
+    controllerTitleEl.setAttribute('aria-label', `${en} — ${ar}`);
+  } else {
+    // only english line (single-line fallback)
+    controllerTitleEl.classList.add('single-line');
+    controllerTitleEl.textContent = en;
+    controllerTitleEl.setAttribute('aria-label', en);
+  }
+}
+
+/**
  * Shows the initial lead form step (Step 1).
  * @param {function} [onShow] - Optional callback function to execute after showing.
  */
@@ -117,14 +152,14 @@ export function showStartScreen(onShow) {
     // Show Step 1
     if (formStep1El) formStep1El.classList.remove('hidden');
     
-    // // Clear form fields to prevent showing old data
+    // Clear form fields to prevent showing old data
     if (nameInputEl) nameInputEl.value = '';
+    if (nationalityInputEl) nationalityInputEl.value = '';
     if (emailInputEl) emailInputEl.value = '';
+    if (phoneInputEl) phoneInputEl.value = '';
 
     if (controllerTitleEl) controllerTitleEl.classList.remove('hidden');
-    if (controllerTitleEl) controllerTitleEl.textContent = 'Mental Awareness Experience';
-    if (leadInstructionsEl) leadInstructionsEl.textContent = 'Please enter your details';
-    if (leadInstructionsEl) leadInstructionsEl.classList.remove('hidden');
+    setControllerTitle('What if this was your everyday?', 'ﻣﺎذا ﻟﻮ ﻛﺎن ﻫﺬا ﻋﺎﻟﻤﻚ ﻛﻞ ﻳﻮم؟');
     if (leadStatusEl) leadStatusEl.classList.add('hidden');
 
     if (nameInputEl) nameInputEl.focus();
@@ -143,8 +178,8 @@ export function showMainContent() {
 
     // Update main card text
     if (controllerTitleEl) controllerTitleEl.classList.remove('hidden');
-    if (controllerTitleEl) controllerTitleEl.textContent = 'Experience a day through the eyes of';
-    if (leadInstructionsEl) leadInstructionsEl.classList.add('hidden');
+    // if (controllerTitleEl) controllerTitleEl.textContent = 'Experience a day through the eyes of';
+    setControllerTitle('Experience a day through the eyes of', 'ﻛﻤﺎ أرى');
 }
 
 /**
@@ -161,7 +196,7 @@ export function showStep3() {
     // Update main card text for the 'Thank You' screen
     if (controllerTitleEl) controllerTitleEl.classList.add('hidden');
     if (controllerTitleEl) controllerTitleEl.textContent = '';
-    if (leadInstructionsEl) leadInstructionsEl.classList.add('hidden');
+    // if (leadInstructionsEl) leadInstructionsEl.classList.add('hidden');
 }
 
 

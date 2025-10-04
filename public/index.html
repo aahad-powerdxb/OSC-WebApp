@@ -78,22 +78,51 @@
   <div id="mainContent" class="page-container controller-page">
     <div class="main-card lead-card">
       <!-- Title and Instructions change dynamically based on step -->
-      <h2 id="controllerTitle">Mental Awareness Experience</h2>
-      <p style="margin-bottom: 20px; font-size: 20px; color: #000000;" id="leadInstructions">Please enter your details</p>
+      <h2 id="controllerTitle"></h2>
+      <!-- <p style="margin-bottom: 20px; font-size: 20px; color: #000000;" id="leadInstructions">Please enter your details</p> -->
 
       <form id="leadForm" onsubmit="return false;">
         <!-- STEP 1: Name and Email (Visible initially) -->
         <div id="formStep1" class="form-step form-step-1">
           <div class="form-row mt-10">
-            <label for="nameInput">Name</label>
-            <input id="nameInput" type="text"/>
+            <label for="nameInput" class="bilingual-label">
+              <span class="label-en">Name</span>
+              <span class="label-ar" lang="ar" dir="rtl">اﻻﺳﻢ</span>
+            </label>
+            <input id="nameInput" type="text" aria-label="Name — اﻻﺳﻢ"/>
           </div>
+
           <div class="form-row mt-10">
-            <label for="emailInput">Email</label>
-            <input id="emailInput" type="email"/>
+            <label for="nationalityInput" class="bilingual-label">
+              <span class="label-en">Nationality</span>
+              <span class="label-ar" lang="ar" dir="rtl">اﻟﺠﻨﺴﻴﺔ</span>
+            </label>
+            <input id="nationalityInput" type="text" aria-label="Nationality — اﻟﺠﻨﺴﻴﺔ"/>
           </div>
+
+          <div class="form-row mt-10">
+            <label for="emailInput" class="bilingual-label">
+              <span class="label-en">E-mail</span>
+              <span class="label-ar" lang="ar" dir="rtl">اﻟﺒﺮﻳﺪ اﻹﻟﻜﺘﺮوﻱ</span>
+            </label>
+            <input id="emailInput" type="email" aria-label="E-mail — اﻟﺒﺮﻳﺪ اﻹﻟﻜﺘﺮوﻱ"/>
+          </div>
+
+          <div class="form-row mt-10">
+            <label for="phoneInput" class="bilingual-label">
+              <span class="label-en">Mobile Number</span>
+              <span class="label-ar" lang="ar" dir="rtl">رﻗﻢ اﻟﻬﺎﺗﻒ</span>
+            </label>
+            <input id="phoneInput" type="text" aria-label="Mobile Number — رﻗﻢ اﻟﻬﺎﺗﻒ"/>
+          </div>
+
           <div class="btn-row mt-15">
-            <button type="button" class="primary-btn" onclick="submitLeadForm()">Next</button>
+            <button type="button" class="primary-btn" onclick="submitLeadForm()" aria-label="Next — التالي">
+              <span class="bilingual-btn">
+                <span class="label-ar">التالي</span>
+                <span class="label-en">Next</span>
+              </span>
+            </button>
           </div>
           <div id="leadStatus" class="status statusbar error hidden"></div>
         </div>
@@ -101,27 +130,36 @@
         <!-- STEP 2: Video Controls (Initially hidden) -->
         <div id="formStep2" class="form-step form-step-2 hidden">
           <div class="buttons-row">
-            <button onclick="send(1)" data-video-id="1" value="ADHD" duration="10">
-              <div>
-                <img class="btn-img" src="./svg/icons-01.svg" alt="ADHD.svg">
-                A person on the ADHD spectrum
-              </div>
+            <button onclick="send(1)" data-video-id="1" value="ADHD" duration="10" aria-label="ADHD Spectrum — اﻻﺩﻫﺖ">
+              <span class="btn-icon">
+                <img class="btn-img" src="./svg/icons-01.svg" alt="ADHD icon">
+              </span>
+
+              <span class="bilingual-btn" aria-hidden="false">
+                <span class="label-ar">اﺿﻄﺮاب ﻓﺮط اﻟﺤﺮﻛﺔ</span>
+                <span class="label-en">ADHD Spectrum</span>
+              </span>
             </button>
 
-            <button onclick="send(2)" data-video-id="2" value="Schizophrenic" duration="61">
-              <div>
-                <img class="btn-img" src="./svg/icons-02.svg" alt="Schizo.svg">
-                A person with Schizophrenia
-              </div>
+            <button onclick="send(2)" data-video-id="2" value="Schizophrenic" duration="61" aria-label="Schizophrenia — اﻟﺰﻫﺎﺩ">
+              <span class="btn-icon">
+                <img class="btn-img" src="./svg/icons-02.svg" alt="Schizophrenia icon">
+              </span>
+              <span class="bilingual-btn">
+                <span class="label-ar">اﻟﻔُﺼﺎم</span>
+                <span class="label-en">Schizophrenia</span>
+              </span>
             </button>
 
-            <button onclick="send(3)" data-video-id="3" value="Autistic" duration="62">
-              <div>
-                <img class="btn-img" src="./svg/icons-03.svg" alt="Autism.svg">
-                A person on the Autism spectrum
-              </div>
+            <button onclick="send(3)" data-video-id="3" value="Autistic" duration="62" aria-label="Autism — اﻻﻧﺘﺮ">
+              <span class="btn-icon">
+                <img class="btn-img" src="./svg/icons-03.svg" alt="Autism icon">
+              </span>
+              <span class="bilingual-btn">
+                <span class="label-ar">اﺿﻄﺮاب ﻃﻴﻒ اﻟﺘﻮﺣﺪ</span>
+                <span class="label-en">Autism Spectrum Disorder</span>
+              </span>
             </button>
-            <!-- <button onclick="send(4)" data-video-id="4" value="video4">Play 4</button> -->
           </div>
 
           <hr class="divider">
@@ -131,7 +169,28 @@
         
         <!-- STEP 3: Thank You Screen (Initially hidden) -->
         <div id="formStep3" class="form-step form-step-3 hidden" style="text-align: center; padding: 40px 0;">
-            <h2 style="color: var(--green-accent1); font-size: 2.5em; font-weight: bold;">Thank You!</h2>
+          <div class="step3-content">
+            <!-- image on top -->
+            <img
+              src="./img/Sage logo.png"
+              alt="Sage Clinics logo and partners"
+              class="step3-image"
+              loading="lazy"
+
+            />
+
+            <!-- bilingual block beneath the image -->
+            <h2 class="step3-bilingual" aria-hidden="false">
+              <span class="label-ar" dir="rtl" lang="ar">
+                اﻟﺘﺠﺮﺑﺔ ﺧﻀﻌﺖ ﻟﻠﻤﺮاﺟﻌﺔ اﻟﺴﺮﻳﺮﻳﺔ واﻟﺘﺤﻘﻖ ﻣﻦ اﻟﺤﻘﺎﺋﻖ ﻣﻦ ﻗﺒﻞ ﺷﺮﻛﺎﺋﻨﺎ ﻓﻲ اﻟﺮﻓﺎه
+                اﻟﻨﻔﺴﻲ ﻓﻲ ﻣﺮﻛﺰ ﺳﻴﺞ
+              </span>
+              <span class="label-en">
+                This experience has been clinically reviewed and fact-checked<br>
+                by our mental wealth partners at Sage Clinics.
+              </span>
+            </h2>
+          </div>
         </div>
         
         <!-- Hidden Submit Button -->

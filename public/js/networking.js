@@ -47,7 +47,7 @@ export function updateMainStatus() {
 
     if (lastKnownVideo !== 0) {
         // statusEl.textContent = `Playing Video ${lastKnownVideo}!`;
-        showStatus(statusEl, `You've chosen the ${lastKnownVideoLabel} experience`, 2000);
+        showStatus(statusEl, `You're viewing the ${lastKnownVideoLabel} experience`, 2000);
     } else {
         // statusEl.textContent = 'Playback Reset';
         // showStatus(statusEl, 'Playback Reset', 2000);

@@ -62,12 +62,42 @@
 /* keep existing hidden helper, but floating() will remove hidden when used */
 .hidden { display:none !important; }
 
+/* ==== BILINGUAL CONTROLLER TITLE ==== */
 #controllerTitle {
-  font-size: 2.5em;
-  font-weight: bold;
+  display: flex;
+  flex-direction: column;   /* stack Arabic above English */
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;      /* prevent wrapping */
+  line-height: 1.05;
+  margin: 0 0 1em 0;                /* reset default margins */
+  padding: 0;
+}
+
+/* Arabic line: on top, RTL. Use a slightly larger size if you like */
+#controllerTitle .title-ar {
+  direction: rtl;
+  unicode-bidi: isolate-override;
+  font-size: 1.4em;
+  font-weight: 700;
+  letter-spacing: 0.4px;
   color: var(--green-accent1);
-  margin-bottom: 10px;
-  user-select: none;
+}
+
+/* English line: below Arabic */
+#controllerTitle .title-en {
+  direction: ltr;
+  font-size: 1.4em;
+  font-weight: 700;
+  color: var(--green-accent1);
+}
+
+/* If Arabic text is not present, keep a single centered line */
+#controllerTitle.single-line {
+  display: block;
+  text-align: center;
+  white-space: normal;
 }
 
 /* Base button style (shared across app) */
@@ -153,43 +183,226 @@ button:disabled {
 /* Simple form layout used by config & password */
 form { text-align:left; display:block; }
 
-/* Make the row take available width and cap it for readability */
+/* STACKED form-row: label (EN/AR) above input */
 .form-row {
+  display: flex;
+  flex-direction: column;   /* stack label above input */
+  align-items: stretch;
+  gap: 8px;                 /* spacing between label row and input */
   width: 100%;
-  max-width: 720px; /* optional, tune to taste */
+  max-width: 720px;
   margin-left: auto;
   margin-right: auto;
-  justify-content: flex-start; /* label + input align left; input will grow */
-  gap: 18px; /* spacing between label and input */
   box-sizing: border-box;
 }
 
-/* Give the label a fixed width so input knows how much space is left */
+/* label is full-width and contains the bilingual row */
 .form-row label {
-  flex: 0 0 1000px;     /* fixed 100px label (tweak as needed) */
-  max-width: 140px;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-weight: 350;
+  color: #0b0b0b;
+  padding: 0 4px;           /* small horizontal padding so text doesn't touch edges */
+}
+
+/* --------------------------
+   BILINGUAL LABEL FIX (place at end of CSS)
+   -------------------------- */
+
+/* keep the generic label block rules, but make bilingual labels behave as flex */
+.form-row > label.bilingual-label {
+  display: flex;                /* force flex for bilingual labels */
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 4px;               /* small horizontal padding */
+}
+
+/* allow each side to take available space but also to shrink correctly */
+.form-row > label.bilingual-label .label-en,
+.form-row > label.bilingual-label .label-ar {
+  flex: 1 1 0;                  /* grow and shrink, share space */
+  min-width: 0;                 /* crucial so text can ellipsis/shrink in flex */
+  white-space: nowrap;
+}
+
+/* alignment specifics */
+.form-row > label.bilingual-label .label-en {
   text-align: left;
+  padding-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Let input take remaining space and allow it to shrink properly */
+.form-row > label.bilingual-label .label-ar {
+  text-align: right;
+  direction: rtl;
+  unicode-bidi: isolate-override;
+  padding-left: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* fallback: if the label is too narrow, stack EN/AR vertically */
+@media (max-width: 420px) {
+  .form-row > label.bilingual-label {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .form-row > label.bilingual-label .label-en,
+  .form-row > label.bilingual-label .label-ar {
+    text-align: left;
+    direction: ltr;
+  }
+}
+
+/* inside the label we lay out English on the left and Arabic on the right */
+/* Generic container for bilingual label (Arabic on top, English below) */
+.bilingual-btn {
+  display: flex;
+  flex-direction: column;  /* stack AR above EN */
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* Arabic line */
+.bilingual-btn .label-ar {
+  direction: rtl;
+  unicode-bidi: isolate-override;
+  font-size: 1.05rem;      /* tweak if needed */
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* English line */
+.bilingual-btn .label-en {
+  direction: ltr;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;             /* default for colored buttons; adjust for hover state */
+}
+
+/* For the small primary "Next" button: place bilingual text inline stacked */
+.primary-btn .bilingual-btn .label-en { color: #fff; }
+.primary-btn:hover .bilingual-btn .label-en { color: var(--green-accent1); }
+
+/* Ensure large video buttons center content vertically/horizontally */
+.buttons-row button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 18px 12px;
+}
+
+/* Icon sizing container (small tweak) */
+.btn-icon img, .btn-icon svg {
+  width: 120px;
+  height: 120px;
+  display: block;
+}
+
+/* Ensure contrast when hovered: swap colors (if your hover changes background) */
+.buttons-row button:hover .label-en,
+.buttons-row button:hover .label-ar {
+  color: var(--green-accent1);
+}
+
+/* Accessibility: ensure focus visible */
+button:focus {
+  outline: 3px solid rgba(130,194,64,0.22);
+  outline-offset: 2px;
+}
+
+/* container for step3 contents (keeps image + text centered) */
+.step3-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 8px;
+}
+
+/* hero image on top */
+.step3-image {
+  display: block;
+  width: min(80%, 210px);  /* responsive: up to 560px or 80% of viewport */
+  height: auto;
+  border-radius: 12px;     /* optional */
+  object-fit: cover;
+}
+
+/* keep existing bilingual sizing; adjust if needed */
+.step3-bilingual {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.2;
+  margin: 0 auto;
+}
+
+/* Slightly larger Arabic headline for step3 */
+.step3-bilingual .label-ar {
+  font-size: clamp(1.2rem, 1.8vw, 1.8rem);
+  font-weight: 600;
+  color: #00000054;
+}
+
+/* English subtext smaller and lighter */
+.step3-bilingual .label-en {
+  font-size: clamp(0.95rem, 1.8vw, 2.5vw);
+  font-weight: 500;
+  color: #00000054;
+}
+
+/* Input — full width below the label */
 .form-row input {
-  flex: 1 1 auto;    /* grow and shrink to fill available space */
-  min-width: 0;      /* crucial: allow the input to shrink below its content's min-width */
-  width: 500px;       /* don't use width:100% inside flex item */
-  /* box-sizing: border-box; */
-
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
   border-radius: 8px;
-  border:2px solid #00000000;
-  padding:10px 12px;
+  box-sizing: border-box;
   background-color: var(--muted);
-
-  margin-top: 3px;
+  border: 2px solid transparent;
 }
 
+/* Input focus style */
 .form-row input:focus {
-  outline:none;
-  border:2px solid var(--green-accent1);
-  box-shadow:0 0 8px rgba(102,126,234,0.3);
+  outline: none;
+  border-color: var(--green-accent1);
+  box-shadow: 0 0 8px rgba(130,194,64,0.15);
+}
+
+/* Mobile: slightly smaller label text and stacked spacing */
+@media (max-width: 520px) {
+  .label-en, .label-ar { font-size: 14px; }
+  .form-row { gap: 6px; }
+  .form-row input { padding: 10px; }
+}
+/* For WebKit browsers (Chrome, Safari, Edge, Opera) */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0; /* Important to remove any default margin */
+}
+
+/* For Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 

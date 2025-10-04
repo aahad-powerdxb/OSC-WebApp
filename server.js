@@ -21,8 +21,10 @@ let OSC_PORT = parseInt(process.env.OSC_PORT || '57120', 10);
 
 let BASE_CSV_HEADERS = [
     'timestamp', 
-    'name', 
-    'email'
+    'name',
+    'nationality', 
+    'email',
+    'phone'
 ];
 
 /**

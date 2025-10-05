@@ -31,7 +31,7 @@ function handleServerMessage(data) {
 
         case 'sent':
             // Watch for /@3/20 ["Video", N] messages and update main UI state
-            if (data.address === '/@3/20' && Array.isArray(data.args) && data.args.length >= 2 && data.args[0] === 'Video') {
+            if (data.address === '/@3/20' && Array.isArray(data.args) && data.args.length >= 2 && data.args[0] === 'Autostart') {
                 const videoNum = parseInt(data.args[1], 10);
                 if (Number.isInteger(videoNum) && videoNum >= HOLDING_VIDEO_ID) { 
                     State.setCurrentVideoId(videoNum);

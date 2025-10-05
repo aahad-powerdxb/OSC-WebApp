@@ -102,7 +102,7 @@ export function sendVideoCommand(n, label = "") {
     lastKnownVideoLabel = label;  // <-- STORE THE LABEL
     updateMainStatus();
 
-    const msg = { address: '/@3/20', args: ['Video', n] };
+    const msg = { address: '/@3/20', args: ['Autostart', n] };
     sendJSON(msg);
 }
 

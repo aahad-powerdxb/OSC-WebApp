@@ -2,7 +2,7 @@
 > osc-webapp@1.0.0 start
 > node server.js
 
-[dotenv@17.2.2] injecting env (4) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.2.2] injecting env (4) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
 Loaded persisted config: { host: '127.0.0.1', port: 57120 }
 === ENV VALUES ===
 process.env.OSC_HOST: 192.168.10.10
@@ -14,3 +14,79 @@ Resolved values -> OSC_HOST: 127.0.0.1 OSC_PORT: 57120 HTTP_PORT: 3000
 HTTP server: http://localhost:3000
 Initial OSC target: 127.0.0.1:57120
 WS client connected ::1
+RAW WS MESSAGE: {"address":"/@3/20","args":["Video",1]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 1 ] }
+Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",1]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Video",0]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 0 ] }
+Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",0]
+RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-05T09:34:45.856Z","name":"Amol","email":"amol@poef.com","ADHD":true,"Schizophrenic":false,"Autistic":false}
+PARSED WS MESSAGE: {
+  type: 'data_log',
+  timestamp: '2025-10-05T09:34:45.856Z',
+  name: 'Amol',
+  email: 'amol@poef.com',
+  ADHD: true,
+  Schizophrenic: false,
+  Autistic: false
+}
+Logged data to CSV: 2025-10-05T09:34:45.856Z,Amol,amol@poef.com,1,0,0,data_log
+RAW WS MESSAGE: {"address":"/@3/20","args":["Video",2]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 2 ] }
+Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",2]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Video",0]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 0 ] }
+Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",0]
+RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-05T09:37:00.879Z","name":"joseph","email":"joseph@powerdxb.com","ADHD":false,"Schizophrenic":true,"Autistic":false}
+PARSED WS MESSAGE: {
+  type: 'data_log',
+  timestamp: '2025-10-05T09:37:00.879Z',
+  name: 'joseph',
+  email: 'joseph@powerdxb.com',
+  ADHD: false,
+  Schizophrenic: true,
+  Autistic: false
+}
+Logged data to CSV: 2025-10-05T09:37:00.879Z,joseph,joseph@powerdxb.com,0,0,1,data_log
+RAW WS MESSAGE: {"address":"/@3/20","args":["Video",1]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 1 ] }
+Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",1]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Video",2]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 2 ] }
+Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",2]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Video",3]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 3 ] }
+Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",3]
+RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-05T09:37:54.038Z","name":"rffdf","email":"accc@ghn.com","ADHD":true,"Schizophrenic":true,"Autistic":true}
+PARSED WS MESSAGE: {
+  type: 'data_log',
+  timestamp: '2025-10-05T09:37:54.038Z',
+  name: 'rffdf',
+  email: 'accc@ghn.com',
+  ADHD: true,
+  Schizophrenic: true,
+  Autistic: true
+}
+Logged data to CSV: 2025-10-05T09:37:54.038Z,rffdf,accc@ghn.com,1,1,1,data_log
+RAW WS MESSAGE: {"address":"/@3/20","args":["Video",0]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 0 ] }
+Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",0]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Video",2]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 2 ] }
+Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",2]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Video",0]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 0 ] }
+Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",0]
+RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-05T09:41:28.450Z","name":"Tdtdgf","email":"fdfc@vvg.com","ADHD":false,"Schizophrenic":true,"Autistic":false}
+PARSED WS MESSAGE: {
+  type: 'data_log',
+  timestamp: '2025-10-05T09:41:28.450Z',
+  name: 'Tdtdgf',
+  email: 'fdfc@vvg.com',
+  ADHD: false,
+  Schizophrenic: true,
+  Autistic: false
+}
+Logged data to CSV: 2025-10-05T09:41:28.450Z,Tdtdgf,fdfc@vvg.com,0,0,1,data_log
+WS client disconnected
+^C^C

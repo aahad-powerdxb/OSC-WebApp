@@ -146,42 +146,45 @@ function validateAndSanitizePhone(phone) {
 
 // ---------- Lead form logic (Step 1 to Step 2 transition) ----------
 
-export function submitLeadForm() {
+export function submitLeadForm(skip_validation = false) {
     const name = DOM.nameInputEl.value.trim();
     const nationality = DOM.nationalityInputEl.value.trim();
     const email = DOM.emailInputEl.value.trim();
     const phone = DOM.phoneInputEl.value.trim();
 
-    // Basic validation
-    // NOTE: This check ensures that the input fields have *some* content (even spaces)
-    // The phone validation below handles if the content is only invalid separators.
-    if (name.length === 0 || nationality.length === 0 || email.length === 0 || phone.length === 0) {
-        DOM.showStatus(DOM.leadStatusEl, 'Please enter all the fields', 2000);
-        return;
-    }
+    if (!skip_validation)
+    {
+        // Basic validation
+        // NOTE: This check ensures that the input fields have *some* content (even spaces)
+        // The phone validation below handles if the content is only invalid separators.
+        if (name.length === 0 || nationality.length === 0 || email.length === 0 || phone.length === 0) {
+            DOM.showStatus(DOM.leadStatusEl, 'Please enter all the fields', 2000);
+            return;
+        }
 
-    // Simple email format check
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        DOM.showStatus(DOM.leadStatusEl, 'Please enter a valid email address', 2000);
-        return;
-    }
+        // Simple email format check
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            DOM.showStatus(DOM.leadStatusEl, 'Please enter a valid email address', 2000);
+            return;
+        }
 
-    // -----------------------------------------------------
-    // Phone number validity check using the new modular function
-    const sanitizedPhone = validateAndSanitizePhone(phone);
-    
-    if (!sanitizedPhone) {
-        // This will catch numbers that are only separators or have invalid characters/length.
-        DOM.showStatus(DOM.leadStatusEl, 'Please enter a valid mobile number (e.g. +97150... or 050...)', 2000);
-        return;
+        // -----------------------------------------------------
+        // Phone number validity check using the new modular function
+        const sanitizedPhone = validateAndSanitizePhone(phone);
+        
+        if (!sanitizedPhone) {
+            // This will catch numbers that are only separators or have invalid characters/length.
+            DOM.showStatus(DOM.leadStatusEl, 'Please enter a valid mobile number (e.g. +97150... or 050...)', 2000);
+            return;
+        }
+        // -----------------------------------------------------
+        
+        // --------------------------------------------
+        // --- CAPTURE DATA AND DYNAMICALLY INITIALIZE BUTTON STATUS ---
+        State.setCapturedLeadData({ name, nationality, email, phone: sanitizedPhone }); // Use the sanitized phone number
     }
-    // -----------------------------------------------------
-    
-    // --- CAPTURE DATA AND DYNAMICALLY INITIALIZE BUTTON STATUS ---
-    State.setCapturedLeadData({ name, nationality, email, phone: sanitizedPhone }); // Use the sanitized phone number
     State.setButtonStatus(initializeButtonStatus());
-    // --------------------------------------------
 
     // Success message before transition
     // DOM.leadStatusEl.textContent = 'Details captured. Accessing controls...';
@@ -193,7 +196,7 @@ export function submitLeadForm() {
         // DOM.leadStatusEl.classList.add('hidden'); // Clear status after transition
 
         DOM.hideStatusImmediately(DOM.leadStatusEl);
-    }, 500);
+    }, 100);
 }
 
 

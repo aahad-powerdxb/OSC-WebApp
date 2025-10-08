@@ -191,6 +191,12 @@ export function setupEventListeners() {
         }
     });
 
+    // --- Skip Lead Form ---
+    DOM.skipLeadFormEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        submitLeadForm(true);
+    });
+
     // --- Target Form Enter handler (Configuration) ---
     const targetForm = document.getElementById('targetForm');
     if (targetForm) {

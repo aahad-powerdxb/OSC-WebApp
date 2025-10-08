@@ -2,91 +2,109 @@
 > osc-webapp@1.0.0 start
 > node server.js
 
-[dotenv@17.2.2] injecting env (4) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
-Loaded persisted config: { host: '127.0.0.1', port: 57120 }
+[dotenv@17.2.2] injecting env (4) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+Loaded persisted config: { host: '192.168.10.10', port: 8000 }
 === ENV VALUES ===
 process.env.OSC_HOST: 192.168.10.10
 process.env.OSC_PORT: 8000
 process.env.HTTP_PORT: 3000
 process.env.PASSWORD: SET
-Resolved values -> OSC_HOST: 127.0.0.1 OSC_PORT: 57120 HTTP_PORT: 3000
+Resolved values -> OSC_HOST: 192.168.10.10 OSC_PORT: 8000 HTTP_PORT: 3000
 ==================
 HTTP server: http://localhost:3000
-Initial OSC target: 127.0.0.1:57120
+Initial OSC target: 192.168.10.10:8000
 WS client connected ::1
-RAW WS MESSAGE: {"address":"/@3/20","args":["Video",1]}
-PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 1 ] }
-Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",1]
-RAW WS MESSAGE: {"address":"/@3/20","args":["Video",0]}
-PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 0 ] }
-Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",0]
-RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-05T09:34:45.856Z","name":"Amol","email":"amol@poef.com","ADHD":true,"Schizophrenic":false,"Autistic":false}
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",2]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 2 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",2]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",0]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 0 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",0]
+RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-08T04:48:10.135Z","name":"fvdvdvdf","nationality":"Dgdfdfd","email":"sdsds@sdsdds.com","phone":"123456789","ADHD":false,"Schizophrenic":true,"Autistic":false}
 PARSED WS MESSAGE: {
   type: 'data_log',
-  timestamp: '2025-10-05T09:34:45.856Z',
-  name: 'Amol',
-  email: 'amol@poef.com',
-  ADHD: true,
-  Schizophrenic: false,
-  Autistic: false
-}
-Logged data to CSV: 2025-10-05T09:34:45.856Z,Amol,amol@poef.com,1,0,0,data_log
-RAW WS MESSAGE: {"address":"/@3/20","args":["Video",2]}
-PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 2 ] }
-Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",2]
-RAW WS MESSAGE: {"address":"/@3/20","args":["Video",0]}
-PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 0 ] }
-Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",0]
-RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-05T09:37:00.879Z","name":"joseph","email":"joseph@powerdxb.com","ADHD":false,"Schizophrenic":true,"Autistic":false}
-PARSED WS MESSAGE: {
-  type: 'data_log',
-  timestamp: '2025-10-05T09:37:00.879Z',
-  name: 'joseph',
-  email: 'joseph@powerdxb.com',
+  timestamp: '2025-10-08T04:48:10.135Z',
+  name: 'fvdvdvdf',
+  nationality: 'Dgdfdfd',
+  email: 'sdsds@sdsdds.com',
+  phone: '123456789',
   ADHD: false,
   Schizophrenic: true,
   Autistic: false
 }
-Logged data to CSV: 2025-10-05T09:37:00.879Z,joseph,joseph@powerdxb.com,0,0,1,data_log
-RAW WS MESSAGE: {"address":"/@3/20","args":["Video",1]}
-PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 1 ] }
-Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",1]
-RAW WS MESSAGE: {"address":"/@3/20","args":["Video",2]}
-PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 2 ] }
-Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",2]
-RAW WS MESSAGE: {"address":"/@3/20","args":["Video",3]}
-PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 3 ] }
-Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",3]
-RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-05T09:37:54.038Z","name":"rffdf","email":"accc@ghn.com","ADHD":true,"Schizophrenic":true,"Autistic":true}
+Logged data to CSV: 2025-10-08T04:48:10.135Z,fvdvdvdf,Dgdfdfd,sdsds@sdsdds.com,123456789,0,0,1,data_log
+WS client connected ::1
+WS client disconnected
+WS client connected ::1
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",3]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 3 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",3]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",2]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 2 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",2]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",1]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 1 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",1]
+RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-08T05:14:08.138Z","name":"","nationality":"","email":"","phone":"","ADHD":true,"Schizophrenic":true,"Autistic":true}
 PARSED WS MESSAGE: {
   type: 'data_log',
-  timestamp: '2025-10-05T09:37:54.038Z',
-  name: 'rffdf',
-  email: 'accc@ghn.com',
+  timestamp: '2025-10-08T05:14:08.138Z',
+  name: '',
+  nationality: '',
+  email: '',
+  phone: '',
   ADHD: true,
   Schizophrenic: true,
   Autistic: true
 }
-Logged data to CSV: 2025-10-05T09:37:54.038Z,rffdf,accc@ghn.com,1,1,1,data_log
-RAW WS MESSAGE: {"address":"/@3/20","args":["Video",0]}
-PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 0 ] }
-Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",0]
-RAW WS MESSAGE: {"address":"/@3/20","args":["Video",2]}
-PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 2 ] }
-Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",2]
-RAW WS MESSAGE: {"address":"/@3/20","args":["Video",0]}
-PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Video', 0 ] }
-Forwarding OSC to 127.0.0.1:57120 -> /@3/20 ["Video",0]
-RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-05T09:41:28.450Z","name":"Tdtdgf","email":"fdfc@vvg.com","ADHD":false,"Schizophrenic":true,"Autistic":false}
+Logged data to CSV: 2025-10-08T05:14:08.138Z,,,,,1,1,1,data_log
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",2]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 2 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",2]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",0]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 0 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",0]
+RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-08T05:16:22.474Z","name":"fjglkfjk","nationality":"kjlskfdj","email":"kjflsdk@Kjflsd.com","phone":"1111111111","ADHD":false,"Schizophrenic":true,"Autistic":false}
 PARSED WS MESSAGE: {
   type: 'data_log',
-  timestamp: '2025-10-05T09:41:28.450Z',
-  name: 'Tdtdgf',
-  email: 'fdfc@vvg.com',
+  timestamp: '2025-10-08T05:16:22.474Z',
+  name: 'fjglkfjk',
+  nationality: 'kjlskfdj',
+  email: 'kjflsdk@Kjflsd.com',
+  phone: '1111111111',
   ADHD: false,
   Schizophrenic: true,
   Autistic: false
 }
-Logged data to CSV: 2025-10-05T09:41:28.450Z,Tdtdgf,fdfc@vvg.com,0,0,1,data_log
+Logged data to CSV: 2025-10-08T05:16:22.474Z,fjglkfjk,kjlskfdj,kjflsdk@Kjflsd.com,1111111111,0,0,1,data_log
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",3]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 3 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",3]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",2]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 2 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",2]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",1]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 1 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",1]
+RAW WS MESSAGE: {"type":"data_log","timestamp":"2025-10-08T05:16:33.253Z","name":"","nationality":"","email":"","phone":"","ADHD":true,"Schizophrenic":true,"Autistic":true}
+PARSED WS MESSAGE: {
+  type: 'data_log',
+  timestamp: '2025-10-08T05:16:33.253Z',
+  name: '',
+  nationality: '',
+  email: '',
+  phone: '',
+  ADHD: true,
+  Schizophrenic: true,
+  Autistic: true
+}
+Logged data to CSV: 2025-10-08T05:16:33.253Z,,,,,1,1,1,data_log
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",3]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 3 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",3]
+RAW WS MESSAGE: {"address":"/@3/20","args":["Autostart",2]}
+PARSED WS MESSAGE: { address: '/@3/20', args: [ 'Autostart', 2 ] }
+Forwarding OSC to 192.168.10.10:8000 -> /@3/20 ["Autostart",2]
+WS client disconnected
 WS client disconnected
 ^C^C

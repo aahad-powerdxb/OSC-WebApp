@@ -12,6 +12,7 @@ export const mainContentEl = document.getElementById('mainContent');
 export const configFormContainerEl = document.getElementById('configFormContainer');
 export const passwordWallContainerEl = document.getElementById('passwordWallContainer');
 export const tapTargetEl = document.getElementById('tapTarget');
+export const skipLeadFormEl = document.getElementById('skipLeadForm');
 
 // Status areas
 export const configStatusEl = document.getElementById('configStatus');

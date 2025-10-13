@@ -356,14 +356,14 @@ button:focus {
 
 /* Slightly larger Arabic headline for step3 */
 .step3-bilingual .label-ar {
-  font-size: clamp(1.2rem, 1.8vw, 1.8rem);
+  font-size: clamp(1.2rem, 1.8vw, 2.2rem);
   font-weight: 600;
   color: #00000054;
 }
 
 /* English subtext smaller and lighter */
 .step3-bilingual .label-en {
-  font-size: clamp(0.95rem, 1.8vw, 2.5vw);
+  font-size: clamp(0.95rem, 1.4vw, 2rem);
   font-weight: 500;
   color: #00000054;
 }

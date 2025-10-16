@@ -6,13 +6,17 @@ const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const { Server: WebSocketServer } = require('ws');
-const { Client } = require('node-osc');
+const { Client, Server: OSCServer } = require('node-osc');
 
 const CONFIG_FILE = path.join(__dirname, 'osc-config.json');
 const LOG_FILE = path.join(__dirname, 'data.csv'); // New log file path
 
 const HTTP_PORT = process.env.HTTP_PORT || 3000;
 const PASSWORD = process.env.PASSWORD || null; // if set, clients must authenticate
+
+// Use a dedicated listen port for incoming OSC broadcasts.
+// Defaults to OSC_PORT if OSC_LISTEN_PORT not provided.
+const OSC_LISTEN_PORT = parseInt(process.env.OSC_LISTEN_PORT || process.env.OSC_PORT || '57120', 10);
 
 let OSC_HOST = process.env.OSC_HOST || '127.0.0.1';
 let OSC_PORT = parseInt(process.env.OSC_PORT || '57120', 10);
@@ -162,6 +166,46 @@ server.listen(HTTP_PORT, () => {
 
 const wss = new WebSocketServer({ server });
 const WS_OPEN = 1;
+
+// --- OSC UDP listener to forward incoming OSC messages to browser clients ---
+try {
+  const oscServer = new OSCServer(OSC_LISTEN_PORT, '0.0.0.0');
+
+  oscServer.on('message', (msg, rinfo) => {
+    // node-osc gives msg as an array like ['/address', arg1, arg2, ...]
+    const address = Array.isArray(msg) && msg.length ? msg[0] : null;
+    const args = Array.isArray(msg) ? msg.slice(1) : [];
+
+    const payload = {
+      type: 'osc',
+      address,
+      args,
+      info: {
+        from: rinfo && rinfo.address ? rinfo.address : undefined,
+        port: rinfo && rinfo.port ? rinfo.port : undefined
+      }
+    };
+
+    const json = JSON.stringify(payload);
+    console.log('Received OSC -> forwarding to clients:', payload);
+
+    // Broadcast to all connected websocket clients
+    wss.clients.forEach(client => {
+      if (client.readyState === WS_OPEN) {
+        client.send(json);
+      }
+    });
+  });
+
+  oscServer.on('error', (err) => {
+    console.error('OSC Server error:', err);
+  });
+
+  console.log(`OSC UDP listener started on 0.0.0.0:${OSC_LISTEN_PORT}`);
+} catch (err) {
+  console.error('Failed to start OSC UDP listener:', err);
+}
+
 
 // Regex to accept simple IPv4 or hostname (basic validation)
 const validHostRegex = /^(\d{1,3}\.){3}\d{1,3}$|^[a-zA-Z0-9\-\._]+$/;

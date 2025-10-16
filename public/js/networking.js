@@ -36,6 +36,21 @@ export function setOnMessageCallback(callback) {
     onMessageCallback = callback;
 }
 
+// ---------- OSC Listener (client-side API) ----------
+
+/**
+ * Register a callback to be called when an OSC message is received
+ * @param {(msg:Object)=>void} cb - receives an object like { type:'osc', address:'/foo', args:[...], info: {...} }
+ */
+export function addOSCListener(cb) {
+    oscListeners.add(cb);
+}
+
+/** Remove a previously added OSC listener */
+export function removeOSCListener(cb) {
+    oscListeners.delete(cb);
+}
+
 // ---------- UI Status Updates ----------
 
 /** Updates the user-facing status on the main controller screen. */
@@ -165,4 +180,17 @@ ws.addEventListener('message', (evt) => {
     let data;
     try { data = JSON.parse(evt.data); } catch { return; }
     onMessageCallback(data); // Pass message to main.js
+
+    // If this is an OSC-forward message from the server, notify OSC listeners
+    // Expectation: server forwards OSC as { type: 'osc', address: '...', args: [...], info: {...} }
+    try {
+        if (data && data.type === 'osc') {
+            oscListeners.forEach(cb => {
+                try { cb(data); } catch (err) { console.error('OSC listener error', err); }
+            });
+        }
+    } catch (e) {
+        // defensive: don't allow listener errors to break the socket
+        console.error('Error handling incoming OSC message', e);
+    }
 });

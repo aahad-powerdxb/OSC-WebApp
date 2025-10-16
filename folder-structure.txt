@@ -1,0 +1,59 @@
+Folder PATH listing for volume Blade 15 SSD
+Volume serial number is FC6F-F184
+C:.
+|   .env
+|   .gitignore
+|   data-accessibility-expo-final.csv
+|   data.csv
+|   folder-structure.txt
+|   kiosk_keyblock.ahk
+|   master_start_poll.bat
+|   osc-config.json
+|   osc-listen.js
+|   package-lock.json
+|   package.json
+|   README.md
+|   server.js
+|   server.log
+|               
+\---public
+    |   index.html
+    |   index.js
+    |   
+    +---css
+    |       base.css
+    |       components.css
+    |       layout.css
+    |       vars.css
+    |       
+    +---img
+    |       BG.png
+    |       BG_v1.png
+    |       BG_v2.png
+    |       Sage logo.png
+    |       
+    +---js
+    |   |   appLogic.js
+    |   |   appState.js
+    |   |   dom.js
+    |   |   main.js
+    |   |   networking.js
+    |   |   
+    |   \---helper
+    |           authAndConfig.js
+    |           domHelpers.js
+    |           eventHandlers.js
+    |           sessionLogic.js
+    |           
+    \---svg
+            icons-01-v1.svg
+            icons-01.svg
+            icons-02-v1.svg
+            icons-02.svg
+            icons-03.svg
+            icons_active-01-v1.svg
+            icons_active-01.svg
+            icons_active-02-v1.svg
+            icons_active-02.svg
+            icons_active-03.svg
+            

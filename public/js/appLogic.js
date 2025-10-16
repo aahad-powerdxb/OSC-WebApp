@@ -2,7 +2,7 @@ import * as DOM from './dom.js';
 import * as Net from './networking.js';
 import * as State from './appState.js';
 import { getVideoButton, hideAndDisableButton, enableAllVideoButtons } from './helper/domHelpers.js';
-import { initializeButtonStatus, setOnVideoDurationEnd, resetInactivityTimer, setVideoDurationForId, checkAllVideosSentAndReset, clearInactivityTimer, startInactivityTimer, handleVideoCommandError } from './helper/sessionLogic.js';
+import { initializeButtonStatus, resetInactivityTimer, setVideoDurationForId, checkAllVideosSentAndReset, clearInactivityTimer, startInactivityTimer, handleVideoCommandError } from './helper/sessionLogic.js';
 import { handlePasswordResult, submitPassword, setTarget, setTargetAndTest } from './helper/authAndConfig.js';
 import { setupEventListeners } from './helper/eventHandlers.js';
 
@@ -12,7 +12,22 @@ const { HOLDING_VIDEO_ID } = State;
 // Expose setupEventListeners for main.js bootstrap
 export { setupEventListeners };
 
-// ---------- Server Message Handling (Unchanged) ----------
+// ---------- Server Message Handling ----------
+
+function isEndOscMessage(data) {
+    if (!data || typeof data.address !== 'string') return false;
+    const END_ADDRS = ['/@3/30', '/video/ended', '/player/finished'];
+    if (END_ADDRS.includes(data.address)) return true;
+
+    // heuristics: 'stop', 'end', 'finished' in first string arg
+    const args = Array.isArray(data.args) ? data.args : [];
+    if (args.length && typeof args[0] === 'string') {
+        const first = args[0].toLowerCase();
+        if (first.includes('stop') || first.includes('finish') || first.includes('done') || first.includes('end')) return true;
+    }
+
+    return false;
+}
 
 function handleServerMessage(data) {
     switch (data.type) {
@@ -49,6 +64,30 @@ function handleServerMessage(data) {
             // Show error in the active status area and try to re-enable button
             DOM.getActiveStatusEl().textContent = `Error: ${data.message}`;
             handleVideoCommandError();
+            break;
+
+        case 'osc':
+            // Incoming forwarded OSC message from server — check if it signals video finished
+            if (isEndOscMessage(data)) {
+                console.log('OSC end-of-video detected:', data);
+                // If the current state is not already holding, trigger the holding command
+                if (State.currentVideoId !== HOLDING_VIDEO_ID) {
+                    // sendHolding is exported from this module; call it to perform the same actions as a manual holding send.
+                    DOM.showStatus(DOM.statusEl, 'Receiver reported video end — sending holding', 2000);
+                    try {
+                        sendHolding(); // this updates state and sends the holding OSC via Net
+                    } catch (err) {
+                        console.error('Error while sending holding from OSC handler:', err);
+                    }
+                    // restart/reset inactivity timer so session continues correctly
+                    resetInactivityTimer();
+                } else {
+                    console.log('Already in holding state; ignoring end-of-video event.');
+                }
+            } else {
+                // Optionally log other osc messages for debugging
+                console.log('OSC message (ignored):', data.address, data.args);
+            }
             break;
 
         default:
@@ -226,6 +265,4 @@ export function initApp() {
     DOM.showStartScreen();
     Net.updateConfigStatus();
     Net.populateCurrentTargetFromServer();
-
-    setOnVideoDurationEnd(sendHolding);
 }

@@ -14,19 +14,51 @@ export { setupEventListeners };
 
 // ---------- Server Message Handling ----------
 
-function isEndOscMessage(data) {
-    if (!data || typeof data.address !== 'string') return false;
-    const END_ADDRS = ['/@3/30', '/video/ended', '/player/finished'];
-    if (END_ADDRS.includes(data.address)) return true;
-
-    // heuristics: 'stop', 'end', 'finished' in first string arg
-    const args = Array.isArray(data.args) ? data.args : [];
-    if (args.length && typeof args[0] === 'string') {
-        const first = args[0].toLowerCase();
-        if (first.includes('stop') || first.includes('finish') || first.includes('done') || first.includes('end')) return true;
+// --------------------
+// Detector helper (handles numbers, bigints, numeric strings)
+// --------------------
+function coerceToNumber(val) {
+    if (typeof val === 'number' && Number.isFinite(val)) return val;
+    if (typeof val === 'bigint') return Number(val);
+    if (typeof val === 'string') {
+        const trimmed = val.endsWith('n') ? val.slice(0, -1) : val;
+        const n = parseFloat(trimmed);
+        if (!Number.isNaN(n)) return n;
     }
+    return null;
+}
 
-    return false;
+/**
+ * Detects the specific "/@3/1000" end-of-video message format:
+ * args example: [3, "Autoplay", 3, 1, ...]
+ * - returns { matched: true, index: <videoIndex> } when:
+ *    - address === '/@3/1000'
+ *    - fourth arg (args[3]) coerces to 1
+ *    - third arg (args[2]) coerces to 1|2|3
+ * - otherwise returns { matched: false, index: null }
+ */
+function detectEndOfVideo(data) {
+    if (!data || typeof data.address !== 'string') return { matched: false, index: null };
+    if (data.address !== '/@3/1000') return { matched: false, index: null };
+
+    const args = Array.isArray(data.args) ? data.args : [];
+
+    if (args.length < 4) return { matched: false, index: null };
+
+    const thirdRaw = args[2];
+    const fourthRaw = args[3];
+
+    const third = coerceToNumber(thirdRaw);
+    const fourth = coerceToNumber(fourthRaw);
+
+    if (third === null || fourth === null) return { matched: false, index: null };
+
+    if (Math.abs(fourth - 1) > 1e-9) return { matched: false, index: null };
+
+    const intThird = Math.round(third);
+    if (![1,2,3].includes(intThird)) return { matched: false, index: null };
+
+    return { matched: true, index: intThird };
 }
 
 function handleServerMessage(data) {
@@ -46,7 +78,7 @@ function handleServerMessage(data) {
 
         case 'sent':
             // Watch for /@3/20 ["Video", N] messages and update main UI state
-            if (data.address === '/@3/20' && Array.isArray(data.args) && data.args.length >= 2 && data.args[0] === 'Autostart') {
+            if (data.address === '/@3/20' && Array.isArray(data.args) && data.args.length >= 2 && data.args[0] === 'Autoplay') {
                 const videoNum = parseInt(data.args[1], 10);
                 if (Number.isInteger(videoNum) && videoNum >= HOLDING_VIDEO_ID) { 
                     State.setCurrentVideoId(videoNum);
@@ -66,29 +98,36 @@ function handleServerMessage(data) {
             handleVideoCommandError();
             break;
 
-        case 'osc':
-            // Incoming forwarded OSC message from server — check if it signals video finished
-            if (isEndOscMessage(data)) {
-                console.log('OSC end-of-video detected:', data);
-                // If the current state is not already holding, trigger the holding command
+        case 'osc': {
+            // Every forwarded OSC message hits this branch.
+            const endInfo = detectEndOfVideo(data);
+            if (endInfo.matched) {
+                console.log('Detected end-of-video OSC:', data, ' -> videoIndex:', endInfo.index);
+
+                // Only act if not already in holding state
                 if (State.currentVideoId !== HOLDING_VIDEO_ID) {
-                    // sendHolding is exported from this module; call it to perform the same actions as a manual holding send.
-                    DOM.showStatus(DOM.statusEl, 'Receiver reported video end — sending holding', 2000);
+                    // Optionally record which video ended (temporary)
+                    if (typeof endInfo.index === 'number') {
+                        State.setCurrentVideoId(endInfo.index);
+                    }
+
                     try {
-                        sendHolding(); // this updates state and sends the holding OSC via Net
+                        setTimeout(() => {
+                            sendHolding();
+                        }, 250) // <---- VERY IMPORTANT. IF INSTANTLY SENT, THEN NO WORK. KEEP AROUND 150-300
                     } catch (err) {
                         console.error('Error while sending holding from OSC handler:', err);
+                        handleVideoCommandError();
                     }
-                    // restart/reset inactivity timer so session continues correctly
-                    resetInactivityTimer();
                 } else {
                     console.log('Already in holding state; ignoring end-of-video event.');
                 }
             } else {
-                // Optionally log other osc messages for debugging
-                console.log('OSC message (ignored):', data.address, data.args);
+                // ignored OSC messages arrive here; you can enable debug if needed
+                // console.log('OSC message (ignored):', data.address, data.args);
             }
             break;
+        }
 
         default:
             // ignore unknown types
@@ -124,17 +163,25 @@ export function send(n) {
     // Update local state for error recovery and send command
     State.setCurrentVideoId(n);
 
-    // update VIDEO_DURATION_MS from the pressed button's "duration" attr
-    setVideoDurationForId(n);
+    // Prevent the leftover inactivity timer from expiring while a new video plays.
+    // Clearing it here avoids going to Step 3 mid-play; sendHolding() will restart it later.
+    clearInactivityTimer();
 
     Net.sendVideoCommand(n, buttonKey);
-    resetInactivityTimer(); // Reset timer on interaction
 }
 
 export function sendHolding() {
     // Update local state for error recovery
     State.setCurrentVideoId(HOLDING_VIDEO_ID);
     Net.sendVideoCommand(HOLDING_VIDEO_ID);
+
+    // Start the inactivity timer with ONLY LEFTOVER_TIMEOUT_MS — this guarantees
+    // the primary timer that transitions to Step 3 runs only after holding is sent.
+    try {
+        startInactivityTimer(State.LEFTOVER_TIMEOUT_MS);
+    } catch (err) {
+        console.error('Failed to start inactivity timer after sendHolding():', err);
+    }
 }
 
 // ---------- NEW MODULAR PHONE VALIDATION FUNCTION (CORRECTED) ----------

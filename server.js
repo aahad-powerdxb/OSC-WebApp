@@ -5,6 +5,8 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
+const os = require('os');
+const dgram = require('dgram');
 const { Server: WebSocketServer } = require('ws');
 const { Client, Server: OSCServer } = require('node-osc');
 
@@ -167,44 +169,244 @@ server.listen(HTTP_PORT, () => {
 const wss = new WebSocketServer({ server });
 const WS_OPEN = 1;
 
-// --- OSC UDP listener to forward incoming OSC messages to browser clients ---
-try {
-  const oscServer = new OSCServer(OSC_LISTEN_PORT, '0.0.0.0');
+// --------------------
+// Minimal OSC parser + UDP listener (dgram)
+// --------------------
+let udpServer = null;
 
-  oscServer.on('message', (msg, rinfo) => {
-    // node-osc gives msg as an array like ['/address', arg1, arg2, ...]
-    const address = Array.isArray(msg) && msg.length ? msg[0] : null;
-    const args = Array.isArray(msg) ? msg.slice(1) : [];
+function readPaddedString(buf, offset) {
+  let end = offset;
+  while (end < buf.length && buf[end] !== 0) end++;
+  const str = buf.toString('utf8', offset, end);
+  const total = end - offset + 1;
+  const pad = (4 - (total % 4)) % 4;
+  const nextOffset = end + 1 + pad;
+  return { value: str, nextOffset };
+}
 
-    const payload = {
-      type: 'osc',
-      address,
-      args,
-      info: {
-        from: rinfo && rinfo.address ? rinfo.address : undefined,
-        port: rinfo && rinfo.port ? rinfo.port : undefined
+function parseMessageBuffer(buf, baseOffset = 0) {
+  let offset = baseOffset;
+  const { value: address, nextOffset: addrNext } = readPaddedString(buf, offset);
+  offset = addrNext;
+
+  const { value: typeTagString, nextOffset: tagsNext } = readPaddedString(buf, offset);
+  offset = tagsNext;
+  if (!typeTagString || typeTagString[0] !== ',') {
+    return { address, args: [], nextOffset: offset };
+  }
+  const tags = typeTagString.slice(1).split('');
+  const args = [];
+
+  for (const t of tags) {
+    switch (t) {
+      case 'i': {
+        const val = buf.readInt32BE(offset);
+        args.push(val);
+        offset += 4;
+        break;
       }
-    };
-
-    const json = JSON.stringify(payload);
-    console.log('Received OSC -> forwarding to clients:', payload);
-
-    // Broadcast to all connected websocket clients
-    wss.clients.forEach(client => {
-      if (client.readyState === WS_OPEN) {
-        client.send(json);
+      case 'f': {
+        const val = buf.readFloatBE(offset);
+        args.push(val);
+        offset += 4;
+        break;
       }
+      case 's':
+      case 'S': {
+        const { value: s, nextOffset } = readPaddedString(buf, offset);
+        args.push(s);
+        offset = nextOffset;
+        break;
+      }
+      case 'h': {
+        try {
+          const val = buf.readBigInt64BE(offset);
+          args.push(val);
+        } catch (e) {
+          try {
+            const hi = buf.readUInt32BE(offset);
+            const lo = buf.readUInt32BE(offset + 4);
+            const combined = (BigInt(hi) << 32n) | BigInt(lo);
+            args.push(combined);
+          } catch (e2) {
+            args.push(null);
+          }
+        }
+        offset += 8;
+        break;
+      }
+      case 'd': {
+        const val = buf.readDoubleBE(offset);
+        args.push(val);
+        offset += 8;
+        break;
+      }
+      case 't': {
+        try {
+          const val = buf.readBigInt64BE(offset);
+          args.push(val);
+        } catch (e) {
+          args.push(buf.readDoubleBE(offset));
+        }
+        offset += 8;
+        break;
+      }
+      case 'b': {
+        const size = buf.readInt32BE(offset);
+        offset += 4;
+        const blob = buf.slice(offset, offset + size);
+        args.push(blob);
+        const pad = (4 - (size % 4)) % 4;
+        offset += size + pad;
+        break;
+      }
+      case 'T': {
+        args.push(true);
+        break;
+      }
+      case 'F': {
+        args.push(false);
+        break;
+      }
+      case 'N': {
+        args.push(null);
+        break;
+      }
+      case 'I': {
+        args.push('Impulse');
+        break;
+      }
+      default: {
+        console.warn('Unknown OSC type tag encountered:', t);
+        break;
+      }
+    }
+  }
+
+  return { address, args, nextOffset: offset };
+}
+
+function parseOSCBuffer(buf) {
+  const header = buf.toString('utf8', 0, Math.min(8, buf.length));
+  if (header.startsWith('#bundle')) {
+    let offset = 8;
+    while (offset % 4 !== 0) offset++;
+    offset += 8;
+    const messages = [];
+    while (offset + 4 <= buf.length) {
+      const size = buf.readInt32BE(offset);
+      offset += 4;
+      if (size <= 0 || offset + size > buf.length) break;
+      const slice = buf.slice(offset, offset + size);
+      const parsed = parseMessageBuffer(slice, 0);
+      messages.push(parsed);
+      offset += size;
+    }
+    return { type: 'bundle', elements: messages };
+  } else {
+    const parsed = parseMessageBuffer(buf, 0);
+    return { type: 'message', message: parsed };
+  }
+}
+
+function listLocalAddresses() {
+  const netifs = os.networkInterfaces();
+  const addrs = [];
+  Object.keys(netifs).forEach(name => {
+    netifs[name].forEach(info => {
+      if (!info.internal) addrs.push({ if: name, family: info.family, address: info.address });
     });
   });
+  return addrs;
+}
 
-  oscServer.on('error', (err) => {
-    console.error('OSC Server error:', err);
+function startUdpListener() {
+  if (udpServer) {
+    try { udpServer.close(); } catch (e) { /* ignore */ }
+    udpServer = null;
+  }
+
+  udpServer = dgram.createSocket('udp4');
+
+  udpServer.on('error', (err) => {
+    console.error('UDP server error (socket):', err && err.code ? `${err.code} - ${err.message}` : err);
   });
 
-  console.log(`OSC UDP listener started on 0.0.0.0:${OSC_LISTEN_PORT}`);
-} catch (err) {
-  console.error('Failed to start OSC UDP listener:', err);
+  udpServer.on('message', (msg, rinfo) => {
+    let parsed;
+    try {
+      parsed = parseOSCBuffer(msg);
+    } catch (err) {
+      console.error('Error parsing OSC buffer:', err && err.message ? err.message : err);
+      return;
+    }
+
+    if (parsed.type === 'message' && parsed.message) {
+      const { address, args } = parsed.message;
+      const payload = { type: 'osc', address, args, info: { from: rinfo.address, port: rinfo.port } };
+      const json = JSON.stringify(payload, (_k, v) => typeof v === 'bigint' ? v.toString() : v);
+      console.log('Received OSC -> forwarding to clients:', payload);
+      wss.clients.forEach(client => {
+        if (client.readyState === WS_OPEN) client.send(json);
+      });
+    } else if (parsed.type === 'bundle') {
+      for (const el of parsed.elements) {
+        const { address, args } = el;
+        const payload = { type: 'osc', address, args, info: { from: rinfo.address, port: rinfo.port } };
+        const json = JSON.stringify(payload, (_k, v) => typeof v === 'bigint' ? v.toString() : v);
+        console.log('Received OSC bundle element -> forwarding to clients:', payload);
+        wss.clients.forEach(client => {
+          if (client.readyState === WS_OPEN) client.send(json);
+        });
+      }
+    } else {
+      console.warn('Parsed OSC buffer unrecognized format:', parsed);
+    }
+  });
+
+  console.log('Attempting UDP bind. OSC_HOST:', OSC_HOST, 'OSC_LISTEN_PORT:', OSC_LISTEN_PORT);
+  console.log('Local non-internal network interfaces:', listLocalAddresses());
+
+  function tryBind(hostToUse) {
+    return new Promise((resolve, reject) => {
+      const onError = (err) => {
+        udpServer.removeListener('listening', onListening);
+        reject(err);
+      };
+      const onListening = () => {
+        udpServer.removeListener('error', onError);
+        console.log(`UDP OSC listener bound to ${hostToUse}:${OSC_LISTEN_PORT}`);
+        resolve();
+      };
+      udpServer.once('error', onError);
+      udpServer.once('listening', onListening);
+      try {
+        udpServer.bind(OSC_LISTEN_PORT, hostToUse);
+      } catch (bindErr) {
+        udpServer.removeListener('error', onError);
+        udpServer.removeListener('listening', onListening);
+        reject(bindErr);
+      }
+    });
+  }
+
+  (async () => {
+    try {
+      await tryBind(OSC_HOST);
+    } catch (err) {
+      const code = err && err.code ? err.code : err;
+      console.warn(`Failed to bind UDP to ${OSC_HOST}:${OSC_LISTEN_PORT} — ${code}. Falling back to 0.0.0.0`);
+      try {
+        await tryBind('0.0.0.0');
+      } catch (err2) {
+        console.error('Failed to bind UDP to 0.0.0.0 as fallback:', err2);
+      }
+    }
+  })();
 }
+
+// start listener
+startUdpListener();
 
 
 // Regex to accept simple IPv4 or hostname (basic validation)
@@ -271,6 +473,16 @@ wss.on('connection', (ws, req) => {
 
         // persist to disk so it survives restarts
         saveConfig();
+
+        try {
+          if (udpServer) {
+            try { udpServer.close(); } catch (e) { /* ignore */ }
+            udpServer = null;
+          }
+          startUdpListener();
+        } catch (e) {
+          console.warn('Failed to restart UDP listener after set_target:', e);
+        }
 
         // Broadcast to all connected clients so everyone updates their UI
         const broadcastMsg = JSON.stringify({ type: 'target_set', host: OSC_HOST, port: OSC_PORT });

@@ -90,7 +90,7 @@ export function setTarget() {
 export function setTargetAndTest() {
     setTarget();
     setTimeout(() => {
-        const testMsg = { address: '/@3/20', args: ['Autostart', HOLDING_VIDEO_ID] };
+        const testMsg = { address: '/@3/20', args: ['Autoplay', HOLDING_VIDEO_ID] };
         Net.sendJSON(testMsg);
     }, 150);
 }

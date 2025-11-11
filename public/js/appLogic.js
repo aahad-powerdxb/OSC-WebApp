@@ -2,7 +2,7 @@ import * as DOM from './dom.js';
 import * as Net from './networking.js';
 import * as State from './appState.js';
 import { getVideoButton, hideAndDisableButton, enableAllVideoButtons } from './helper/domHelpers.js';
-import { initializeButtonStatus, resetInactivityTimer, setVideoDurationForId, checkAllVideosSentAndReset, clearInactivityTimer, startInactivityTimer, handleVideoCommandError } from './helper/sessionLogic.js';
+import { initializeButtonStatus, checkAllVideosSentAndReset, clearInactivityTimer, startInactivityTimer, handleVideoCommandError } from './helper/sessionLogic.js';
 import { handlePasswordResult, submitPassword, setTarget, setTargetAndTest } from './helper/authAndConfig.js';
 import { setupEventListeners } from './helper/eventHandlers.js';
 
@@ -114,7 +114,7 @@ function handleServerMessage(data) {
                     try {
                         setTimeout(() => {
                             sendHolding();
-                        }, 250) // <---- VERY IMPORTANT. IF INSTANTLY SENT, THEN NO WORK. KEEP AROUND 150-300
+                        }, 500) // <---- VERY IMPORTANT. IF INSTANTLY SENT, THEN NO WORK. KEEP AROUND 500-1000
                     } catch (err) {
                         console.error('Error while sending holding from OSC handler:', err);
                         handleVideoCommandError();
@@ -293,7 +293,7 @@ export function showMainContent() {
     DOM.showMainContent();
     Net.updateMainStatus(State.currentVideoId);
     enableAllVideoButtons(); 
-    startInactivityTimer(); // <--- START TIMER WHEN ENTERING STEP 2
+    startInactivityTimer(State.LEFTOVER_TIMEOUT_MS); // <--- START TIMER WHEN ENTERING STEP 2
 };
 
 export function showStartScreen() {

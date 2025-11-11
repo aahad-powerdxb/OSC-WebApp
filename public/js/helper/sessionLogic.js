@@ -90,7 +90,7 @@ export function startInactivityTimer(overrideMs) {
 /** Reset inactivity when still on Step 2. */
 export function resetInactivityTimer() {
     if (DOM.formStep2El && !DOM.formStep2El.classList.contains('hidden')) {
-        startInactivityTimer();
+        startInactivityTimer(State.LEFTOVER_TIMEOUT_MS);
     }
 }
 

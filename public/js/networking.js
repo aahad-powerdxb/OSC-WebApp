@@ -21,6 +21,8 @@ export let lastKnownTarget = { host: null, port: null };
 export let lastKnownVideo = 0; // 0 = holding/reset, 1... = videos
 export let lastKnownVideoLabel = '';
 
+// const oscListeners = new Set();
+
 export function resetVideoStatus()
 {
     lastKnownVideo = 0;

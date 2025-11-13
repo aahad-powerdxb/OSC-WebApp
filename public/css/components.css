@@ -432,6 +432,13 @@ button:focus {
     overflow-y: auto;
 }
 
+/* 2. WebKit (Chrome, Safari) specific scrollbar track */
+.custom-dropdown-list::-webkit-scrollbar {
+    display: none; /* Hide scrollbar entirely */
+    width: 0;      /* Remove space reserved for the scrollbar */
+    height: 0;
+}
+
 .dropdown-option {
     padding: 10px 12px;
     cursor: pointer;

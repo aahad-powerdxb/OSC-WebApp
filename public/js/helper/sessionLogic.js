@@ -70,7 +70,7 @@ export function transitionToStep3AndReset() {
 
     setTimeout(() => {
         DOM.showStartScreen();
-    }, 5000);
+    }, 15000);
 }
 
 /** Start or reset the inactivity timer. */

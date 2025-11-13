@@ -6,6 +6,9 @@ import { initializeButtonStatus, checkAllVideosSentAndReset, clearInactivityTime
 import { handlePasswordResult, submitPassword, setTarget, setTargetAndTest } from './helper/authAndConfig.js';
 import { setupEventListeners } from './helper/eventHandlers.js';
 
+// Add new imports for the custom dropdown component
+import { initializeDropdown, resetNationalityDropdown, getNationalityValue } from './helper/dropdownSetup.js';
+
 // Destructure common state and constants for cleaner access
 const { HOLDING_VIDEO_ID } = State;
 
@@ -114,6 +117,15 @@ function handleServerMessage(data) {
                     try {
                         setTimeout(() => {
                             sendHolding();
+
+                            // Start the inactivity timer with ONLY LEFTOVER_TIMEOUT_MS — this guarantees
+                            // the primary timer that transitions to Step 3 runs only after holding is sent.
+                            try {
+                                startInactivityTimer(State.LEFTOVER_TIMEOUT_MS);
+                            } catch (err) {
+                                console.error('Failed to start inactivity timer after sendHolding():', err);
+                            }
+                            
                         }, 500) // <---- VERY IMPORTANT. IF INSTANTLY SENT, THEN NO WORK. KEEP AROUND 500-1000
                     } catch (err) {
                         console.error('Error while sending holding from OSC handler:', err);
@@ -175,13 +187,7 @@ export function sendHolding() {
     State.setCurrentVideoId(HOLDING_VIDEO_ID);
     Net.sendVideoCommand(HOLDING_VIDEO_ID);
 
-    // Start the inactivity timer with ONLY LEFTOVER_TIMEOUT_MS — this guarantees
-    // the primary timer that transitions to Step 3 runs only after holding is sent.
-    try {
-        startInactivityTimer(State.LEFTOVER_TIMEOUT_MS);
-    } catch (err) {
-        console.error('Failed to start inactivity timer after sendHolding():', err);
-    }
+
 }
 
 // ---------- NEW MODULAR PHONE VALIDATION FUNCTION (CORRECTED) ----------
@@ -234,7 +240,7 @@ function validateAndSanitizePhone(phone) {
 
 export function submitLeadForm(skip_validation = false) {
     const name = DOM.nameInputEl.value.trim();
-    const nationality = DOM.nationalityInputEl.value.trim();
+    const nationality = getNationalityValue().trim();
     const email = DOM.emailInputEl.value.trim();
     const phone = DOM.phoneInputEl.value.trim();
 
@@ -302,13 +308,15 @@ export function showStartScreen() {
     DOM.showStartScreen();
     // Clear lead form inputs when returning to Step 1
     if (DOM.nameInputEl) DOM.nameInputEl.value = '';
+    resetNationalityDropdown();
     if (DOM.emailInputEl) DOM.emailInputEl.value = '';
 };
 
 
 // ---------- Initialization (Unchanged) ----------
 
-export function initApp() {
+export async function initApp() {
+    await initializeDropdown();
     DOM.showStartScreen();
     Net.updateConfigStatus();
     Net.populateCurrentTargetFromServer();

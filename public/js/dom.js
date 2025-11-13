@@ -1,5 +1,7 @@
 // dom.js
 
+import { resetNationalityDropdown } from "./helper/dropdownSetup.js";
+
 // ---------- Cached DOM Elements ----------
 export const statusEl = document.getElementById('status');
 export const hostInput = document.getElementById('hostInput');
@@ -21,7 +23,10 @@ export const leadStatusEl = document.getElementById('leadStatus');
 
 // Form elements (Lead Form Step 1)
 export const nameInputEl = document.getElementById('nameInput');
+
 export const nationalityInputEl = document.getElementById('nationalityInput');
+export const nationalityOptionsEl = document.getElementById('nationalityOptions'); 
+
 export const emailInputEl = document.getElementById('emailInput');
 export const phoneInputEl = document.getElementById('phoneInput');
 export const passwordInputEl = document.getElementById('passwordInput');
@@ -155,7 +160,8 @@ export function showStartScreen(onShow) {
     
     // Clear form fields to prevent showing old data
     if (nameInputEl) nameInputEl.value = '';
-    if (nationalityInputEl) nationalityInputEl.value = '';
+    // if (nationalityInputEl) nationalityInputEl.value = '';
+    resetNationalityDropdown();
     if (emailInputEl) emailInputEl.value = '';
     if (phoneInputEl) phoneInputEl.value = '';
 

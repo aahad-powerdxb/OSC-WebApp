@@ -3,9 +3,29 @@
 
 * { -ms-content-zooming: none; }
 
+@font-face {
+  font-family: "Dubai-Bold";
+  src: url("../fonts/DUBAI-BOLD.TTF") format("woff2");
+}
+
+@font-face {
+  font-family: "Dubai-Light";
+  src: url("../fonts/DUBAI-LIGHT.TTF") format("woff2");
+}
+
+@font-face {
+  font-family: "Dubai-Regular";
+  src: url("../fonts/DUBAI-REGULAR.TTF") format("woff2");
+}
+
+@font-face {
+  font-family: "Dubai-Medium";
+  src: url("../fonts/DUBAI-MEDIUM.TTF") format("woff2");
+}
+
 /* Page layout and font */
 body{
-  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family: "Dubai-Regular";
   display:flex;
   align-items:center;
   justify-content:center;
@@ -39,6 +59,7 @@ h2 {
 .hidden { display:none !important; }
 .mt-10 { margin-top:10px; }
 .mt-15 { margin-top:15px; }
+.mt-35 { margin-top:35px; }
 .justify-center { justify-content:center; }
 
 p{

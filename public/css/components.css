@@ -73,6 +73,8 @@
   line-height: 1.05;
   margin: 0 0 1em 0;                /* reset default margins */
   padding: 0;
+
+  font-family: "Dubai-Bold";
 }
 
 /* Arabic line: on top, RTL. Use a slightly larger size if you like */
@@ -188,12 +190,14 @@ form { text-align:left; display:block; }
   display: flex;
   flex-direction: column;   /* stack label above input */
   align-items: stretch;
-  gap: 8px;                 /* spacing between label row and input */
+  gap: 2px;                 /* spacing between label row and input */
   width: 100%;
   max-width: 720px;
   margin-left: auto;
   margin-right: auto;
   box-sizing: border-box;
+
+  position: relative;      /* for dropdown positioning */
 }
 
 /* label is full-width and contains the bilingual row */
@@ -336,10 +340,11 @@ button:focus {
 /* hero image on top */
 .step3-image {
   display: block;
-  width: min(80%, 210px);  /* responsive: up to 560px or 80% of viewport */
+  width: min(80%, 500px);  /* responsive: up to 560px or 80% of viewport */
   height: auto;
   border-radius: 12px;     /* optional */
   object-fit: cover;
+  margin-top: 2rem;
 }
 
 /* keep existing bilingual sizing; adjust if needed */
@@ -380,11 +385,77 @@ button:focus {
   border: 2px solid transparent;
 }
 
-/* Input focus style */
-.form-row input:focus {
+/* Select element styling */
+/* .form-row select {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: var(--muted);
+  border: 2px solid transparent;
+
+  -moz-appearance: none;    
+  appearance: none;         
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333333"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  cursor: pointer;
+} */
+
+/* Input and Select focus style */
+.form-row input:focus { /* Apply focus style to select as well */
   outline: none;
   border-color: var(--green-accent1);
   box-shadow: 0 0 8px rgba(130,194,64,0.15);
+}
+
+.custom-dropdown-list {
+    /* Match the positioning of the form-row */
+    /* position: absolute; */
+    position: absolute;
+    top: 95%; /* Position right below the input field */
+    left: 0;
+    right: 0;
+    z-index: 100; /* Ensure it floats above other content */
+    
+    /* Styling for the container */
+    margin-top: -5px; /* Pull it up a bit to cover the border gap */
+    background: #e0e0e0; /* muted background (without transparency) for the list */
+    border: 2px solid var(--green-accent1);
+    border-top: none;
+    border-radius: 0 0 8px 8px; /* Rounded corners only on the bottom */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-height: 200px; /* Make the list scrollable */
+    overflow-y: auto;
+}
+
+.dropdown-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    color: #333;
+    font-size: 16px;
+    transition: background-color 0.2s;
+    
+    /* Ensure only the last item has no bottom border if needed */
+    border-bottom: 1px solid #eee; 
+}
+
+/* Custom hover style: Darker background */
+.dropdown-option:hover {
+    background-color: #c9c9c9; /* You might need to define --muted-darker in vars.css */
+    /* Use a standard color if you don't have a variable: */
+    /* background-color: #f0f0f0; */
+}
+
+/* Style for disabled/info options */
+.dropdown-option.disabled {
+    color: #999;
+    font-style: italic;
+    cursor: default;
+    background-color: transparent;
 }
 
 /* Mobile: slightly smaller label text and stacked spacing */
